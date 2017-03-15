@@ -1,4 +1,55 @@
-body {
-	background-color: black;
-	color: lightgreen;
+html, body {
+	background-color: lightgray;
+	color: black;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: none;
+	font-family: monospace;
+}
+
+.dnd-container {
+	width: 95%;
+	height: 95%;
+	overflow: scroll;
+	border: 1px solid #00979D;	
+	background-color: gray;
+	position: relative;
+	
+	-webkit-box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);
+	-moz-box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);
+	box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);	
+}
+
+.dnd-box {
+	width: 300px;
+	height: 300px;
+	overflow: hidden;
+	border: 1px solid gray;
+	float: left;
+	position: absolute;
+	background-color: lightgray;
+	
+	-webkit-box-shadow: 0px 3px 20px 0px rgba(0,0,0,0.6);
+	-moz-box-shadow: 0px 3px 20px 0px rgba(0,0,0,0.6);
+	box-shadow: 0px 3px 20px 0px rgba(0,0,0,0.6);	
+}
+
+.dnd-title {
+	font-family: verdana;
+	background-color: #00979D;
+    color: white;
+	cursor: move;
+	padding: 5px 10px;
+    font-size: small;
+}
+
+.dnd-contents {
+	max-width: 100%;
+	max-height: 100%;
+	overflow: hidden;
+	background-color: lightgray;
+    color: black;
+	padding: 5px 10px;
 }

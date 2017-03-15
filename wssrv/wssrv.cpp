@@ -90,7 +90,7 @@ int main() {
 	string lock = freadall("pipe_lock");
 	if(lock.length()) {
 		pipelog("[main]: pipe locked (exit)");
-		cout << "exit: pipe locked, restart wsd first" << endl;
+		cout << "alert('exit: pipe locked, restart wsd first (close all and run.bat)');" << endl;
 		return -1;
 	}
 	

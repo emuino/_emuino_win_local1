@@ -1,3 +1,8 @@
 [Editors]
-Order=
-Focused=-1
+Order=0
+Focused=0
+[Editor_0]
+CursorCol=36
+CursorRow=67
+TopLine=1
+LeftChar=1

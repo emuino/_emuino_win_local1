@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=3
 CompilerSettings=00000001c0000000000000000
-UnitCount=0
+UnitCount=1
 
 [VersionInfo]
 Major=1
@@ -49,4 +49,14 @@ ProductName=
 ProductVersion=1.0.0.0
 AutoIncBuildNr=0
 SyncProduct=1
+
+[Unit1]
+FileName=wssrv.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 

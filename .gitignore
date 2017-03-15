@@ -2,6 +2,7 @@
 /wssrv/wssrv.o
 /emuino/emuino.exe
 /emuino/emuino.o
+/emuino/gmon.out
 /emuino/emuino.log
 pipe_*
 *.layout

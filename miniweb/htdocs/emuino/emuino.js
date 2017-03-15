@@ -1,31 +1,30 @@
-// TODO: add device extensions to a separated namespace, dont take it to main window object
 
 // device extensions
-var Arduino = function($elem, guid, args) {
+var emuino = {
+	exts: {}
+};
+
+emuino.exts.Arduino = function($elem, guid, args) {
 	
 	console.log('init an arduino - $elem, guid, args: ', $elem, guid, args);
 	$elem.html('An Arduino info here..');
 	
 	// devices loops
 	setInterval(function(){
-		for(var k in devices) {
-			console.log('arduino device is working in loop..');
-		};
+		console.log('arduino device is working in loop.. giud:', guid);
 	}, 400);
 };
 
 // TODO: add more extension here or load dynamically
 
 
-// TODO add it into a namespace or object or something but dont take in into the main wondow object
 
+emuino.init = function() {
 	var devices = [];
-	
-	
 	
 	var dndCounter = 0;
 	var dndZIndexMax = 0;
-	var make = function(name, guid, args) {
+	this.make = function(name, guid, args) {
 		if(!args) args = {};
 		dndCounter++;
 		var dndNextID = 'dnd-'+dndCounter+'-'+name+'-'+guid;
@@ -48,7 +47,7 @@ var Arduino = function($elem, guid, args) {
 		$('#'+dndNextID).mousedown(function(){			
 			$(this).css('z-index', (++dndZIndexMax));
 		});
-		var device = new window[name]($('#'+dndNextID+'-contents'), guid, args);
+		var device = new emuino.exts[name]($('#'+dndNextID+'-contents'), guid, args);
 		devices.push(device);
 	};
 	
@@ -69,7 +68,8 @@ var Arduino = function($elem, guid, args) {
 		// todo...
 		ws.send(document.getElementById('outMsg').value);
 	}	
+};
 
 $(function(){	
-	
+	emuino.init();
 });

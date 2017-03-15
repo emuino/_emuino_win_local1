@@ -1,0 +1,7 @@
+[EMUINO] start
+[pipe send]: start:
+arduino.reset
+[pipe send]: finish
+[arduino]: reset..
+[arduino sketch]: setup..
+[arduino sketch]: loop start..

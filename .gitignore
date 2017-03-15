@@ -1,4 +1,7 @@
 /wssrv/wssrv.exe
+/wssrv/wssrv.o
+/emuino/emuino.exe
+/emuino/emuino.o
 /emuino/emuino.log
 pipe_*
 *.layout

@@ -1,14 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <stdarg.h>
+#include <time.h>
 
 // TODO: add it to the wiki
 #define SKATCH "skatch/skatch.ino"
 
-class ArduinoSkatch {
-private:
+class Skatch {
+public:
 #include SKATCH
+} skatch;
 
+class Emuino {
+private:
+
+	int guid;
 	
 	void fappendln(char* fname, char* msg) {
 		FILE* f = fopen(fname, "a");
@@ -28,11 +35,20 @@ private:
 		
 	}
 	
-	void pipeSend(char* msg) {		
+	void pipeSend(char* msg) {
 		log("[pipe send]: start:");
 		log(msg);
 		fappendln("../pipe_srv", msg);
 		log("[pipe send]: finish");
+	}
+	
+	void pipeSendf (const char * format, ... ) {
+		char buffer[256];
+		va_list args;
+		va_start (args, format);
+		vsprintf (buffer,format, args);
+		pipeSend (buffer);
+		va_end (args);
 	}
 	
 	void pipeRead() {	
@@ -55,19 +71,26 @@ private:
 	}
 	
 public:
-	ArduinoSkatch() {
+	Emuino() {
+		srand(time(NULL));
+		guid = rand();
 		log("[EMUINO] start");
-		pipeSend("arduino.reset");
+		pipeSendf("make('Arduino', '%d', {});", guid);
 		reset();
-		log("[arduino sketch]: setup..");
-		setup();
-		log("[arduino sketch]: loop start..");
+		log("[emuino skatch]: setup..");
+		skatch.setup();
+		log("[emuino skatch]: loop start..");
 		while(!kbhit()) {
 			pipeRead();
-			loop();
+			skatch.loop();
 		}
 	}
-} skatch;
+	
+	~Emuino() {		
+		pipeSendf("remove('Arduino', '%d', {});", guid);
+		log("[EMUINO] end");
+	}
+} emu;
 
 
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */

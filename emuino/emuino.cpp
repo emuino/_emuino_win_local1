@@ -17,6 +17,14 @@ public:
 		fclose(f);		
 	}
 	
+	long fsize(char* fname) {
+		FILE* f = fopen(fname, "r");
+		fseek(f, 0L, SEEK_END);
+		long size = ftell(f);
+		fclose(f);
+		return size;
+	}
+	
 } emuFileHandler;
 
 
@@ -47,6 +55,7 @@ public:
 		emuLogger.log("[pipe send]: start:");
 		emuLogger.log(msg);
 		emuFileHandler.fappendln("../pipe_srv", msg);
+		while(emuFileHandler.fsize("../pipe_srv"));
 		emuLogger.log("[pipe send]: finish");
 	}
 	
@@ -75,21 +84,38 @@ public:
 	
 } emuPipe;
 
+
+
+#include <avr/variants/standard/pins_arduino.h>
+
 class Skatch {
 public:
 #include SKATCH
 } skatch;
+
+
+
+
+#define EMUINO_PINS 32
 
 class Emuino {
 private:
 
 	int guid;
 	
-
+	int pins[EMUINO_PINS];
+	
+	void setPin(int pin, int value) {
+		pins[pin] = value;
+		emuPipe.sendf("devices.Arduino[%d].setPin(%d, %d);", guid, pin, value);
+	}
 	
 	void reset() {
 		emuLogger.log("[arduino]: reset..");
 		// todo: reset pins and all of emulated arduino
+		for(int i=0; i<EMUINO_PINS; i++) {
+			setPin(i, 0);
+		}
 	}
 	
 public:
@@ -101,11 +127,14 @@ public:
 		reset();
 		emuLogger.log("[emuino skatch]: setup..");
 		skatch.setup();
-		emuLogger.log("[emuino skatch]: loop start..");
+		emuLogger.log("[emuino skatch]: loop start.. (press a key to stop)");
 		while(!kbhit()) {
 			emuPipe.read();
 			skatch.loop();
 		}
+		emuLogger.log("[EMUINO] halt");
+		getch();
+		getch();
 	}
 	
 	~Emuino() {		

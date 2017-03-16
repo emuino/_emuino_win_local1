@@ -7,6 +7,12 @@
 // TODO: add it to the wiki
 #define SKATCH "skatch/skatch.ino"
 
+// TODO: emulated Arduino device type definition
+#define __AVR_ATxmega384D3__
+// todo measure the CPU speed or just rewrite the delay.h tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
+#define F_CPU -1
+#include <avr/variants/standard/pins_arduino.h>
+#include <avr/cores/arduino/Arduino.h>
 
 class EmuinoFileHandler {
 public:
@@ -86,7 +92,6 @@ public:
 
 
 
-#include <avr/variants/standard/pins_arduino.h>
 
 class Skatch {
 public:
@@ -118,6 +123,7 @@ private:
 		}
 	}
 	
+
 public:
 	Emuino() {
 		srand(time(NULL));

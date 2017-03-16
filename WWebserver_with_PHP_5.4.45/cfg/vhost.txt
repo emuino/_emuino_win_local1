@@ -1,0 +1,17 @@
+# Definitions of virtual hosts
+# [<unique name>=]<hostname1>[,<hostname2> ...];<Directory>
+# You can create for every virtual host a own configuration directory: cfg/vhost/<hostname>/
+# Following configuration files can be overwritten: mime.txt, vdir.txt, cgi.txt, php.ini (only for FastCGI)
+
+# Examples
+
+# localhost2;C:\localhost2
+# -> localhost2 doc path is C:\localhost2
+# -> cfg/vhost/localhost2 is configuration directory
+
+# two_hosts_in_one_directory=localhost3,localhost4;C:\localhost3
+# -> localhost3 and localhost4 doc path is C:\localhost3
+# -> cfg/vhost/two_hosts_in_one_directory is configuration directory
+
+# localhost5_9090=localhost5:9090;C:\localhost5_9090
+# -> cfg/vhost/localhost5_9090 is configuration directory

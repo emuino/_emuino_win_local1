@@ -1,0 +1,25 @@
+# Definitions of CGI programs
+# <Alias 1> <Alias 2> ...;<Full path to CGI program> 
+# <Alias 1> <Alias 2> ...;PHPBuildIn
+# <Alias 1> <Alias 2> ...;PHPFCGI [<Full path to php-cgi.exe>]
+# <Alias 1> <Alias 2> ...;FCGI <Full path to FastCGI program> | <IP>:<Port> or <Pipename>
+# <Alias 1> <Alias 2> ...;FCGI <IP>:<Port> or <Pipename>
+
+# We use PHPBuildIn as default
+# You can use PHPFCGI for build in PHP FastCGI support
+.php .php4 .php3;PHPBuildIn
+
+# This options give you examples how to configurate PHP with FastCGI
+# Usually first version is used
+# .php;PHPFCGI
+# .php;PHPFCGI C:\PHP7\php-cgi.exe
+
+# Hardcore native FCGI configuration with own parameters
+# .php;FCGI C:\WWebserver with PHP 5.4.45\php-cgi.exe -c "C:\WWebserver with PHP 5.4.45\cfg\php.ini" -b 127.0.0.1:9000 | 127.0.0.1:9000
+# .php;FCGI C:\WWebserver with PHP 5.4.45\php-cgi.exe -c "C:\WWebserver with PHP 5.4.45\cfg\php.ini" -b \\.\pipe\mypipename%i | \\.\pipe\mypipename%i
+
+# Use this if there is running a FCGI server on localhost port 9000
+# .php;FCGI 127.0.0.1:9000
+
+# This option give you example how to configurate CGI processors like Perl
+# .pl;C:\Perl\bin\perl.exe

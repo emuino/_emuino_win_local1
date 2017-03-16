@@ -1,0 +1,8 @@
+# <min> <hour> <day> <month> <weekday> <url>|exec <cmd> [<resultfile>]
+# Weekday: 1 = Mon, 0 = Sun
+
+# In this example we call every 10 minutes a URL and save the result in cron_result.html
+# */10 	* 	* 	* 	* 	https://www.mydomain.com/program.php?param1=1&param2=2 		cron_result.html
+
+# In this example we execute a local program (wget.exe) on Saturday 23:00
+# 0 	23 	* 	* 	6 	exec	c:\wget.exe http://www.mydomain.com/program.php?param1=1&param2=2 -O cron_result_wget.html

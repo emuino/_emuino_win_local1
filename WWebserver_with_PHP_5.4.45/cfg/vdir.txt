@@ -1,0 +1,15 @@
+# Definitions of virtual directories
+# <Path>;<Directory>
+#
+# Note: There must be an '/' on end of <Path>
+
+# pma/;C:\phpMyAdmin
+# typo3/;C:\typo3
+# drupal/;C:\drupal
+# wordpress/;C:\wordpress
+
+# AwStats configuration
+# awstats/;C:\awstats\wwwroot\cgi-bin
+# awstatsclasses/;C:\awstats\wwwroot\classes
+# awstatscss/;C:\awstats\wwwroot\css
+# awstatsicons/;C:\awstats\wwwroot\icon

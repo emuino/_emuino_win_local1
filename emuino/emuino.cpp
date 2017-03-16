@@ -40,6 +40,11 @@ public:
 		return size;
 	}
 	
+	void fclear(const char fname[]) {
+		FILE* f = fopen(fname, "w");
+		fclose(f);
+	}
+	
 } emuFileHandler;
 
 
@@ -50,6 +55,10 @@ public:
 	void log(const char msg[]) {
 		printf("%s\n", msg);		
 		emuFileHandler.fappendln("emuino.log", msg);
+	}
+	
+	void clear() {
+		
 	}
 	
 } emuLogger;
@@ -143,6 +152,7 @@ public:
 	}
 	
 	Emuino() {
+		emuLogger.clear();
 		srand(time(NULL));
 		guid = rand();
 		emuLogger.log("[EMUINO] start");

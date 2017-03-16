@@ -1,0 +1,7 @@
+httpHost=localhost
+httpPort=80
+docPath=C:\emuino\www
+httpsHost=localhost
+httpsPort=443
+noHTTPS=false
+openURL=

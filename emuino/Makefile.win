@@ -10,7 +10,7 @@ LIBS     = -L"C:/Program Files/Dev-Cpp/MinGW64/lib32" -L"C:/Program Files/Dev-Cp
 INCS     = -I"C:/Program Files/Dev-Cpp/MinGW64/include" -I"C:/Program Files/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
 CXXINCS  = -I"C:/Program Files/Dev-Cpp/MinGW64/include" -I"C:/Program Files/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
 BIN      = emuino.exe
-CXXFLAGS = $(CXXINCS) -Og -m32 -pg -g3
+CXXFLAGS = $(CXXINCS) -Og -m32 -pg -g3 -IArduino/hardware/arduino -IArduino/hardware/tools/avr/avr/include
 CFLAGS   = $(INCS) -Og -m32 -pg -g3
 RM       = rm.exe -f
 

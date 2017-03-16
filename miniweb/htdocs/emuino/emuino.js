@@ -6,13 +6,31 @@ var emuino = {
 
 emuino.exts.Arduino = function($elem, guid, args) {
 	
+	var pins = [];
+	
+	
+	this.refresh = function() {
+		var html = '';
+		for(var k in pins) {
+			html+= '<div class="arduino-pin"><span class="pin-no">'+k+'</span><span class="pin-value">'+pins[k]+'</span></div>';
+		}
+		$elem.html(html);
+	};
+	
+	this.setPin = function(pin, value) {
+		pins[pin] = value;
+		this.refresh();
+	};
+	
 	console.log('init an arduino - $elem, guid, args: ', $elem, guid, args);
-	$elem.html('An Arduino info here..');
+	$elem.html('an Arduino loaded..');
+	
+	
 	
 	// devices loops
-	setInterval(function(){
-		console.log('arduino device is working in loop.. giud:', guid);
-	}, 400);
+	//setInterval(function(){
+	//	console.log('arduino device is working in loop.. giud:', guid);
+	//}, 400);	
 };
 
 // TODO: add more extension here or load dynamically
@@ -20,14 +38,17 @@ emuino.exts.Arduino = function($elem, guid, args) {
 
 
 emuino.init = function() {
-	var devices = [];
+	var devices = {};
 	
 	var dndCounter = 0;
 	var dndZIndexMax = 0;
 	this.make = function(name, guid, args) {
 		if(!args) args = {};
 		dndCounter++;
-		var dndNextID = 'dnd-'+dndCounter+'-'+name+'-'+guid;
+		var dndNextID = 'dnd-'+name+'-'+guid;
+		if($('#'+dndNextID).length>0) {
+			throw "DOM element already exists: #"+name+"-"+guid;
+		}
 		$('.dnd-container').append(
 			'<div id="'+dndNextID+'" class="dnd-box">'+
 			'	<div class="dnd-title">'+name+' (guid:'+guid+')</div>'+
@@ -48,7 +69,21 @@ emuino.init = function() {
 			$(this).css('z-index', (++dndZIndexMax));
 		});
 		var device = new emuino.exts[name]($('#'+dndNextID+'-contents'), guid, args);
-		devices.push(device);
+		if(!devices[name]) {
+			devices[name] = [];
+		}
+		if(devices[name][guid]) {
+			throw "device already exists: "+name+" giud="+guid;
+		}
+		devices[name][guid] = device;
+		console.log(devices);
+	};
+	
+	this.remove = function(name, guid) {
+		$('#dnd-'+name+'-'+guid).remove();
+		devices[name][guid] = null;
+		delete devices[name][guid];
+		console.log(devices);
 	};
 	
 
@@ -57,7 +92,7 @@ emuino.init = function() {
 	var ws = new WebSocket('ws://127.0.0.1:8080/');
 
 	ws.onmessage = function(event) {
-		console.log(event);
+		console.log("received:", event.data);
 		//document.getElementById('msgBox').innerHTML = event.data;
 		//document.getElementById('outMsg').value='';
 		eval(event.data);

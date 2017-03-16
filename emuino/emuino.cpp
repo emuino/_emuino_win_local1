@@ -18,7 +18,6 @@
 // TODO change it if you need, Im not realy sure but I think it's related to Arduino device type
 #include <avr/iocanxx.h>
 
-#include <avr/cores/arduino/wiring_digital.c>
 #include <avr/cores/arduino/wiring.c>
 
 
@@ -115,23 +114,32 @@ private:
 
 	int guid;
 	
+	int pinModes[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
 	int pins[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
 	
-	void setPin(int pin, int value) {
-		pins[pin] = value;
-		emuPipe.sendf("devices.Arduino[%d].setPin(%d, %d);", guid, pin, value);
-	}
 	
 	void reset() {
 		emuLogger.log("[arduino]: reset..");
 		// todo: reset pins and all of emulated arduino
 		for(int i=0; i<NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS; i++) {
+			setPinMode(i, 0);
 			setPin(i, 0);
 		}
 	}
 	
 
 public:
+	
+	void setPinMode(int pin, int mode) {
+		pinModes[pin] = mode;
+		emuPipe.sendf("devices.Arduino[%d].setPinMode(%d, %d);", guid, pin, mode);
+	}
+	
+	void setPin(int pin, int value) {
+		pins[pin] = value;
+		emuPipe.sendf("devices.Arduino[%d].setPin(%d, %d);", guid, pin, value);
+	}
+	
 	Emuino() {
 		srand(time(NULL));
 		guid = rand();
@@ -155,6 +163,9 @@ public:
 		emuLogger.log("[EMUINO] end");
 	}
 } emu;
+
+
+#include <avr/cores/arduino/wiring_digital.c>
 
 
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */

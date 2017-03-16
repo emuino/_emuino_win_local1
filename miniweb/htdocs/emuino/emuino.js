@@ -6,15 +6,21 @@ var emuino = {
 
 emuino.exts.Arduino = function($elem, guid, args) {
 	
+	var pinModes = [];
 	var pins = [];
 	
 	
 	this.refresh = function() {
 		var html = '';
 		for(var k in pins) {
-			html+= '<div class="arduino-pin"><span class="pin-no">'+k+'</span><span class="pin-value">'+pins[k]+'</span></div>';
+			html+= '<div class="arduino-pin"><span class="pin-no">'+k+'</span><span class="pin-mode">'+pinModes[k]+'</span><span class="pin-value">'+pins[k]+'</span></div>';
 		}
 		$elem.html(html);
+	};
+	
+	this.setPinMode = function(pin, value) {
+		pinModes[pin] = value;
+		this.refresh();
 	};
 	
 	this.setPin = function(pin, value) {

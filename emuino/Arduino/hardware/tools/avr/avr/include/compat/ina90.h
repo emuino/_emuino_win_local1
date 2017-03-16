@@ -53,12 +53,12 @@
 #ifndef _INA90_H_
 #define _INA90_H_ 1
 
-#define _CLI() do { __asm__ __volatile__ ("cli"); } while (0)
-#define _SEI() do { __asm__ __volatile__ ("sei"); } while (0)
-#define _NOP() do { __asm__ __volatile__ ("nop"); } while (0)
-#define _WDR() do { __asm__ __volatile__ ("wdr"); } while (0)
-#define _SLEEP() do { __asm__ __volatile__ ("sleep"); } while (0)
-#define _OPC(op) do { __asm__ __volatile__ (".word %0" : : "n" (op)); } while (0)
+#define _CLI() do { /* __asm__ __volatile__ ("cli"); */} while (0)
+#define _SEI() do { /* __asm__ __volatile__ ("sei"); */} while (0)
+#define _NOP() do { /* __asm__ __volatile__ ("nop"); */} while (0)
+#define _WDR() do { /* __asm__ __volatile__ ("wdr"); */} while (0)
+#define _SLEEP() do { /* __asm__ __volatile__ ("sleep"); */} while (0)
+#define _OPC(op) do { /* __asm__ __volatile__ (".word %0" : : "n" (op)); */} while (0)
 
 /* _LPM, _ELPM */
 #include <avr/pgmspace.h>

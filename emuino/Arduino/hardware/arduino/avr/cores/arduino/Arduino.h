@@ -115,7 +115,7 @@ void yield(void);
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
-#define _NOP() do { __asm__ volatile ("nop"); } while (0)
+#define _NOP() do { /* __asm__ volatile ("nop"); */} while (0)
 #endif
 
 typedef unsigned int word;

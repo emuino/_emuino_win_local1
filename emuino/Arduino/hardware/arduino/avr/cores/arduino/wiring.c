@@ -105,6 +105,8 @@ unsigned long micros() {
 
 void delay(unsigned long ms)
 {
+	// TODO ###
+	/*
 	uint32_t start = micros();
 
 	while (ms > 0) {
@@ -114,6 +116,7 @@ void delay(unsigned long ms)
 			start += 1000;
 		}
 	}
+	*/
 }
 
 /* Delay for the given number of microseconds.  Assumes a 1, 8, 12, 16, 20 or 24 MHz clock. */

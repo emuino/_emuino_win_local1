@@ -1456,17 +1456,17 @@ from 1 to 129. Thus, one does not need to use \c clock_div_t type as argument.
 void clock_prescale_set(clock_div_t __x)
 {
     uint8_t __tmp = _BV(CLKPCE);
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "sts %1, %0" "\n\t"
         "sts %1, %2" "\n\t"
         "out __SREG__, __tmp_reg__"
-        : /* no outputs */
-        : "d" (__tmp),
+        : *//* no outputs */
+        /*: "d" (__tmp),
           "M" (_SFR_MEM_ADDR(CLKPR)),
           "d" (__x)
-        : "r0");
+        : "r0");*/
 }
 
 /** \addtogroup avr_power
@@ -1498,17 +1498,17 @@ static __inline__ void clock_prescale_set(clock_div_t) __attribute__((__always_i
 void clock_prescale_set(clock_div_t __x)
 {
     uint8_t __tmp = _BV(CLKPCE);
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "sts %1, %0" "\n\t"
         "sts %1, %2" "\n\t"
         "out __SREG__, __tmp_reg__"
-        : /* no outputs */
+        : *//* no outputs *//*
         : "d" (__tmp),
           "M" (_SFR_MEM_ADDR(CLKPR)),
           "d" (__x)
-        : "r0");
+        : "r0");*/
 }
 
 #define clock_prescale_get()  (clock_div_t)(CLKPR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)))
@@ -1535,17 +1535,17 @@ static __inline__ void system_clock_prescale_set(clock_div_t) __attribute__((__a
 void system_clock_prescale_set(clock_div_t __x)
 {
     uint8_t __tmp = _BV(CLKPCE);
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "out %1, %0" "\n\t"
         "out %1, %2" "\n\t"
         "out __SREG__, __tmp_reg__"
-        : /* no outputs */
+        : *//* no outputs *//*
         : "d" (__tmp),
           "I" (_SFR_IO_ADDR(CLKPR)),
           "d" (__x)
-        : "r0");
+        : "r0");*/
 }
 
 #define system_clock_prescale_get()  (clock_div_t)(CLKPR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)|(1<<CLKPS2)))
@@ -1567,7 +1567,7 @@ static __inline__ void timer_clock_prescale_set(timer_clock_div_t) __attribute__
 void timer_clock_prescale_set(timer_clock_div_t __x)
 {
     uint8_t __t;
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "in %[temp],%[clkpr]" "\n\t"
@@ -1577,13 +1577,13 @@ void timer_clock_prescale_set(timer_clock_div_t __x)
         "out %[clkpr],%[temp]" "\n\t"
         "sei" "\n\t"
         "out __SREG__,__tmp_reg__" "\n\t"
-        : /* no outputs */
+        : *//* no outputs *//*
         : [temp] "r" (__t),
           [clkpr] "I" (_SFR_IO_ADDR(CLKPR)),
           [enable] "r" (_BV(CLKPCE)),
           [not_CLTPS] "M" (0xFF & (~ ((1 << CLTPS2) | (1 << CLTPS1) | (1 << CLTPS0)))),
           [set_value] "r" ((__x & 7) << 3)
-        : "r0");
+        : "r0");*/
 }
 
 #define timer_clock_prescale_get()  (timer_clock_div_t)(CLKPR & (uint8_t)((1<<CLTPS0)|(1<<CLTPS1)|(1<<CLTPS2)))
@@ -1608,7 +1608,7 @@ static __inline__ void system_clock_prescale_set(clock_div_t) __attribute__((__a
 void system_clock_prescale_set(clock_div_t __x)
 {
     uint8_t __t;
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "in %[temp],%[clpr]" "\n\t"
@@ -1618,13 +1618,13 @@ void system_clock_prescale_set(clock_div_t __x)
         "out %[clpr],%[temp]" "\n\t"
         "sei" "\n\t"
         "out __SREG__,__tmp_reg__" "\n\t"
-        : /* no outputs */
+        : *//* no outputs *//*
         : [temp] "r" (__t),
           [clpr] "I" (_SFR_IO_ADDR(CLKPR)),
           [enable] "r" _BV(CLPCE),
           [not_CLKPS] "M" (0xFF & (~ ((1 << CLKPS2) | (1 << CLKPS1) | (1 << CLKPS0)))),
           [set_value] "r" (__x & 7)
-        : "r0");
+        : "r0");*/
 }
 
 #define system_clock_prescale_get()  (clock_div_t)(CLKPR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)|(1<<CLKPS2)))
@@ -1646,7 +1646,7 @@ static __inline__ void timer_clock_prescale_set(timer_clock_div_t) __attribute__
 void timer_clock_prescale_set(timer_clock_div_t __x)
 {
     uint8_t __t;
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "in %[temp],%[clpr]" "\n\t"
@@ -1656,13 +1656,13 @@ void timer_clock_prescale_set(timer_clock_div_t __x)
         "out %[clpr],%[temp]" "\n\t"
         "sei" "\n\t"
         "out __SREG__,__tmp_reg__" "\n\t"
-        : /* no outputs */
+        : *//* no outputs *//*
         : [temp] "r" (__t),
           [clpr] "I" (_SFR_IO_ADDR(CLKPR)),
           [enable] "r" (_BV(CLPCE)),	  
           [not_CLTPS] "M" (0xFF & (~ ((1 << CLTPS2) | (1 << CLTPS1) | (1 << CLTPS0)))),
           [set_value] "r" ((__x & 7) << 3)
-        : "r0");
+        : "r0");*/
 }
 
 #define timer_clock_prescale_get()  (timer_clock_div_t)(CLKPR & (uint8_t)((1<<CLTPS0)|(1<<CLTPS1)|(1<<CLTPS2)))
@@ -1707,17 +1707,17 @@ static __inline__ void clock_prescale_set(clock_div_t) __attribute__((__always_i
 void clock_prescale_set(clock_div_t __x)
 {
     uint8_t __tmp = _BV(CLKPCE);
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "out %1, %0" "\n\t"
         "out %1, %2" "\n\t"
         "out __SREG__, __tmp_reg__"
-        : /* no outputs */
+        : *//* no outputs *//*
         : "d" (__tmp),
           "I" (_SFR_IO_ADDR(CLKPR)),
           "d" (__x)
-        : "r0");
+        : "r0");*/
 }
 
 
@@ -1761,7 +1761,7 @@ void clock_prescale_set(clock_div_t __x)
         //5 - Set XDIVEN bit in calculated value
         //6 - write XDIV with calculated value
         //7 - wait 8 clock cycle for stability, see datasheet erreta
-        __asm__ __volatile__ (
+        /* __asm__ __volatile__ (
             "in __tmp_reg__,__SREG__" "\n\t"
             "cli" "\n\t"
             "out %1, __zero_reg__" "\n\t"
@@ -1788,11 +1788,11 @@ void clock_prescale_set(clock_div_t __x)
             "nop" "\n\t"
             "nop" "\n\t"
             "L_%=: " "out __SREG__, __tmp_reg__"
-            : /* no outputs */
+            : *//* no outputs *//*
             :"d" (__x),
              "I" (_SFR_IO_ADDR(XDIV)),
              "d" (__tmp)
-            : "r0");
+            : "r0");*/
     }
 }
 
@@ -1835,18 +1835,18 @@ static __inline__ void clock_prescale_set(clock_div_t) __attribute__((__always_i
 void clock_prescale_set(clock_div_t __x)
 {
     uint8_t __tmp = 0xD8;
-    __asm__ __volatile__ (
+    /* __asm__ __volatile__ (
         "in __tmp_reg__,__SREG__" "\n\t"
         "cli" "\n\t"
         "out %1, %0" "\n\t"
         "out %2, %3" "\n\t"
         "out __SREG__, __tmp_reg__"
-        : /* no outputs */
+        : *//* no outputs *//*
         : "d" (__tmp),
           "I" (_SFR_IO_ADDR(CCP)),
           "I" (_SFR_IO_ADDR(CLKPSR)),
           "d" (__x)
-        : "r16");
+        : "r16");*/
 }
 
 #define clock_prescale_get()  (clock_div_t)(CLKPSR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)|(1<<CLKPS2)|(1<<CLKPS3)))

@@ -284,7 +284,7 @@ extern void sleep_cpu (void);
 
 #define sleep_cpu()                              \
 do {                                             \
-  __asm__ __volatile__ ( "sleep" "\n\t" :: );    \
+  /* __asm__ __volatile__ ( "sleep" "\n\t" :: );*/    \
 } while(0)
 
 #endif
@@ -336,7 +336,7 @@ extern void sleep_bod_disable (void);
 #define sleep_bod_disable() \
 do { \
   uint8_t tempreg; \
-  __asm__ __volatile__("in %[tempreg], %[mcucr]" "\n\t" \
+  /* __asm__ __volatile__("in %[tempreg], %[mcucr]" "\n\t" \
                        "ori %[tempreg], %[bods_bodse]" "\n\t" \
                        "out %[mcucr], %[tempreg]" "\n\t" \
                        "andi %[tempreg], %[not_bodse]" "\n\t" \
@@ -344,7 +344,7 @@ do { \
                        : [tempreg] "=&d" (tempreg) \
                        : [mcucr] "I" _SFR_IO_ADDR(BOD_CONTROL_REG), \
                          [bods_bodse] "i" (_BV(BODS) | _BV(BODSE)), \
-                         [not_bodse] "i" (~_BV(BODSE))); \
+                         [not_bodse] "i" (~_BV(BODSE)));*/ \
 } while (0)
 
 #endif

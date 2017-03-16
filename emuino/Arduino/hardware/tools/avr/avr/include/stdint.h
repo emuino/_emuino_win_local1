@@ -142,13 +142,25 @@ typedef unsigned int uint64_t __attribute__((__mode__(__DI__)));
 
 /** \ingroup avr_stdint
     Signed pointer compatible type. */
-
+    
+#ifndef _INTPTR_T_DEFINED
+#define _INTPTR_T_DEFINED
+#ifndef __intptr_t_defined
+#define __intptr_t_defined
 typedef int16_t intptr_t;
+#endif /* __intptr_t_defined */
+#endif /* _INTPTR_T_DEFINED */
 
 /** \ingroup avr_stdint
     Unsigned pointer compatible type. */
-
+    
+#ifndef _UINTPTR_T_DEFINED
+#define _UINTPTR_T_DEFINED
+#ifndef __uintptr_t_defined
+#define __uintptr_t_defined
 typedef uint16_t uintptr_t;
+#endif /* __uintptr_t_defined */
+#endif /* _UINTPTR_T_DEFINED */
 
 /*@}*/
 

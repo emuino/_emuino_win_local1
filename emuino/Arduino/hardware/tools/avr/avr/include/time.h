@@ -113,7 +113,13 @@ extern          "C" {
         time_t represents seconds elapsed from Midnight, Jan 1 2000 UTC (the Y2K 'epoch').
         Its range allows this implementation to represent time up to Tue Feb 7 06:28:15 2136 UTC.
     */
-    typedef uint32_t time_t;
+#ifndef _TIME_T_DEFINED
+#define _TIME_T_DEFINED
+#ifndef __time_t_defined
+#define __time_t_defined
+	typedef uint32_t time_t;
+#endif /* __time_t_defined */
+#endif /* _TIME_T_DEFINED */
 
     /**
     The time function returns the systems current time stamp.

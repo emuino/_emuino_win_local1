@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <time.h>
 
+#define __EMU__
+
 // TODO: add it to the wiki
 #define SKATCH "skatch/skatch.ino"
 

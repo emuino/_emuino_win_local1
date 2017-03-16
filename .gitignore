@@ -3,6 +3,7 @@
 /emuino/emuino.exe
 /emuino/emuino.o
 /emuino/gmon.out
+/emuino/emuino.dev
 /emuino/emuino.log
 pipe_*
 *.layout

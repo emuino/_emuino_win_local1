@@ -133,7 +133,7 @@
 
 #ifdef __cplusplus
 #  define ISR(vector, ...)            \
-    extern "C" void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
+    extern "C" void vector (void) __attribute__ ((__INTR_ATTRS)) __VA_ARGS__; \
     void vector (void)
 #else
 #  define ISR(vector, ...)            \

@@ -9,9 +9,9 @@
 
 // TODO: emulated Arduino device type definition
 #define __AVR_ATxmega384D3__
-// todo measure the CPU speed or just rewrite the delay.h tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
-#define F_CPU -1
-//#define PROGMEM
+// todo measure the CPU speed or just rewrite the delay.h, interrupt.h etc.. tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
+#define F_CPU 1000000UL
+
 #include <avr/variants/standard/pins_arduino.h>
 #include <avr/cores/arduino/Arduino.h>
 
@@ -24,13 +24,13 @@
 class EmuinoFileHandler {
 public:
 	
-	void fappendln(char* fname, char* msg) {
+	void fappendln(const char fname[], const char msg[]) {
 		FILE* f = fopen(fname, "a");
 		fprintf(f, "%s\n", msg);
 		fclose(f);		
 	}
 	
-	long fsize(char* fname) {
+	long fsize(const char fname[]) {
 		FILE* f = fopen(fname, "r");
 		fseek(f, 0L, SEEK_END);
 		long size = ftell(f);
@@ -45,7 +45,7 @@ public:
 class EmuinoLogger {
 public:
 	
-	void log(char* msg) {
+	void log(const char msg[]) {
 		printf("%s\n", msg);		
 		emuFileHandler.fappendln("emuino.log", msg);
 	}

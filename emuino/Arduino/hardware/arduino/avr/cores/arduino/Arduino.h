@@ -187,33 +187,25 @@ int digitalPinToTimer(int P) { return pgm_read_byte( digital_pin_to_timer_PGM[P]
 #define analogInPinToBit(P) (P)
 
 //#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
-volatile uint8_t* portOutputRegister(int P) { volatile uint8_t ret = pgm_read_word( port_to_output_PGM[P]); return &ret; }
-
-//#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
-volatile uint8_t* portInputRegister(int P) { volatile uint8_t ret = pgm_read_word( port_to_input_PGM[P]); return &ret; }
-
-//#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
-volatile uint8_t* portModeRegister(int P) { volatile uint8_t ret = pgm_read_word( port_to_mode_PGM[P]); return &ret; }
-
-/*
-//#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
 volatile uint8_t* portOutputRegister(int P) { 
-	// TODO ### 
+	// TODO ###
 	return NULL;
+	//volatile uint8_t ret = pgm_read_word( port_to_output_PGM[P]); return &ret; 
 }
 
 //#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
 volatile uint8_t* portInputRegister(int P) {
 	// TODO ###
 	return NULL;
+	//volatile uint8_t ret = pgm_read_word( port_to_input_PGM[P]); return &ret;
 }
 
 //#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
 volatile uint8_t* portModeRegister(int P) {
 	// TODO ###
 	return NULL;
+	//volatile uint8_t ret = pgm_read_word( port_to_mode_PGM[P]); return &ret;
 }
-*/
 
 #define NOT_A_PIN 0
 #define NOT_A_PORT 0

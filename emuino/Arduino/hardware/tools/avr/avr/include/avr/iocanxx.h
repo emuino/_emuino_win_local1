@@ -60,32 +60,44 @@
 /* RegDef:  Port A */
 #define PINA   _SFR_IO8(0x00)
 #define DDRA   _SFR_IO8(0x01)
+#ifndef PORTA
 #define PORTA  _SFR_IO8(0x02)
+#endif
 
 /* RegDef:  Port B */
 #define PINB   _SFR_IO8(0x03)
 #define DDRB   _SFR_IO8(0x04)
+#ifndef PORTB
 #define PORTB  _SFR_IO8(0x05)
+#endif
 
 /* RegDef:  Port C */
 #define PINC   _SFR_IO8(0x06)
 #define DDRC   _SFR_IO8(0x07)
+#ifndef PORTC
 #define PORTC  _SFR_IO8(0x08)
+#endif
 
 /* RegDef:  Port D */
 #define PIND   _SFR_IO8(0x09)
 #define DDRD   _SFR_IO8(0x0A)
+#ifndef PORTD
 #define PORTD  _SFR_IO8(0x0B)
+#endif
 
 /* RegDef:  Port E */
 #define PINE   _SFR_IO8(0x0C)
 #define DDRE   _SFR_IO8(0x0D)
+#ifndef PORTE
 #define PORTE  _SFR_IO8(0x0E)
+#endif
 
 /* RegDef:  Port F */
 #define PINF   _SFR_IO8(0x0F)
 #define DDRF   _SFR_IO8(0x10)
+#ifndef PORTF
 #define PORTF  _SFR_IO8(0x11)
+#endif
 
 /* RegDef:  Port G */
 #define PING   _SFR_IO8(0x12)
@@ -111,7 +123,9 @@
 #define EIMSK  _SFR_IO8(0x1D)
 
 /* RegDef:  General Purpose I/O Register 0 */
+#ifndef GPIOR0
 #define GPIOR0 _SFR_IO8(0x1E)
+#endif
 
 /* RegDef:  EEPROM Control Register */
 #define EECR   _SFR_IO8(0x1F)
@@ -145,10 +159,14 @@
 #define OCR0A  _SFR_IO8(0x27)
 
 /* RegDef:  General Purpose I/O Register 1 */
+#ifndef GPIOR1
 #define GPIOR1 _SFR_IO8(0x2A)
+#endif
 
 /* RegDef:  General Purpose I/O Register 2 */
+#ifndef GPIOR2
 #define GPIOR2 _SFR_IO8(0x2B)
+#endif
 
 /* RegDef:  SPI Control Register */
 #define SPCR   _SFR_IO8(0x2C)
@@ -178,7 +196,9 @@
 #define SPMCSR _SFR_IO8(0x37)
 
 /* RegDef:  RAMPZ register. */
+#ifndef RAMPZ
 #define RAMPZ  _SFR_IO8(0x3B)
+#endif
 
 /* RegDef:  Watchdog Timer Control Register */
 #define WDTCR  _SFR_MEM8(0x60)
@@ -656,7 +676,9 @@
 #define SPM_READY_vect			_VECTOR(36)
 #define SIG_SPM_READY			_VECTOR(36)
 
+#ifndef _VECTORS_SIZE
 #define _VECTORS_SIZE 148
+#endif
 
 /* The Register Bit names are represented by their bit number (0-7). */
 
@@ -677,7 +699,9 @@
 #define    TWSTO        4
 #define    TWWC         3
 #define    TWEN         2
+#ifndef    TWIE
 #define    TWIE         0
+#endif
 /* End Register Bits */
 
 /* Register Bits [TWAR]  */

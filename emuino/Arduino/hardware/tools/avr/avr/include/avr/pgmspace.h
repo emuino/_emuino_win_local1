@@ -110,7 +110,7 @@
    Attribute to use in order to declare an object being located in
    flash ROM.
  */
-#define PROGMEM __ATTR_PROGMEM__
+#define PROGMEM // __ATTR_PROGMEM__
 
 #ifdef __cplusplus
 extern "C" {

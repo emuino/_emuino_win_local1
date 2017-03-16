@@ -6,3 +6,4 @@
 /emuino/emuino.log
 pipe_*
 *.layout
+*.h.gch

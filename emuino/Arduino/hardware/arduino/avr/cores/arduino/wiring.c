@@ -231,10 +231,10 @@ void delayMicroseconds(unsigned int us)
 #endif
 
 	// busy wait
-	__asm__ __volatile__ (
+	/* __asm__ __volatile__ (
 		"1: sbiw %0,1" "\n\t" // 2 cycles
 		"brne 1b" : "=w" (us) : "0" (us) // 2 cycles
-	);
+	); */
 	// return = 4 cycles
 }
 

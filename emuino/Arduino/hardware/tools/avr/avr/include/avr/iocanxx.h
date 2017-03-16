@@ -52,7 +52,7 @@
 #ifndef _AVR_IOXXX_H_
 #  define _AVR_IOXXX_H_ "iocanxx.h"
 #else
-#  error "Attempt to include more than one <avr/ioXXX.h> file."
+//#  error "Attempt to include more than one <avr/ioXXX.h> file."
 #endif 
 
 /* I/O registers and bit definitions. */

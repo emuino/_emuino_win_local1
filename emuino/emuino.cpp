@@ -11,8 +11,16 @@
 #define __AVR_ATxmega384D3__
 // todo measure the CPU speed or just rewrite the delay.h tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
 #define F_CPU -1
+//#define PROGMEM
 #include <avr/variants/standard/pins_arduino.h>
 #include <avr/cores/arduino/Arduino.h>
+
+// TODO change it if you need, Im not realy sure but I think it's related to Arduino device type
+#include <avr/iocanxx.h>
+
+#include <avr/cores/arduino/wiring_digital.c>
+#include <avr/cores/arduino/wiring.c>
+
 
 class EmuinoFileHandler {
 public:
@@ -101,14 +109,13 @@ public:
 
 
 
-#define EMUINO_PINS 32
 
 class Emuino {
 private:
 
 	int guid;
 	
-	int pins[EMUINO_PINS];
+	int pins[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
 	
 	void setPin(int pin, int value) {
 		pins[pin] = value;
@@ -118,7 +125,7 @@ private:
 	void reset() {
 		emuLogger.log("[arduino]: reset..");
 		// todo: reset pins and all of emulated arduino
-		for(int i=0; i<EMUINO_PINS; i++) {
+		for(int i=0; i<NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS; i++) {
 			setPin(i, 0);
 		}
 	}

@@ -408,19 +408,19 @@ typedef uint64_t  prog_uint64_t __attribute__((__progmem__,deprecated("prog_uint
 # define PSTR(s) (__extension__({static const char __c[] PROGMEM = (s); &__c[0];}))
 #endif /* DOXYGEN */
 
-#ifndef __DOXYGEN__ /* Internal macros, not documented. */
-#define __LPM_classic__(addr)   \
-(__extension__({                \
-    uint16_t __addr16 = (uint16_t)(addr); \
-    uint8_t __result;           \
-    __asm__ __volatile__        \
+    /* __asm__ __volatile__        \
     (                           \
         "lpm" "\n\t"            \
         "mov %0, r0" "\n\t"     \
         : "=r" (__result)       \
         : "z" (__addr16)        \
         : "r0"                  \
-    );                          \
+    ); */
+#ifndef __DOXYGEN__ /* Internal macros, not documented. */
+#define __LPM_classic__(addr)   \
+(__extension__({                \
+    uint16_t __addr16 = (addr); \
+    uint8_t __result;           \
     __result;                   \
 }))
 
@@ -454,7 +454,7 @@ typedef uint64_t  prog_uint64_t __attribute__((__progmem__,deprecated("prog_uint
 (__extension__({                            \
     uint16_t __addr16 = (uint16_t)(addr);   \
     uint16_t __result;                      \
-    __asm__ __volatile__                    \
+    /* __asm__ __volatile__                    \
     (                                       \
         "lpm"           "\n\t"              \
         "mov %A0, r0"   "\n\t"              \
@@ -464,7 +464,7 @@ typedef uint64_t  prog_uint64_t __attribute__((__progmem__,deprecated("prog_uint
         : "=r" (__result), "=z" (__addr16)  \
         : "1" (__addr16)                    \
         : "r0"                              \
-    );                                      \
+    ); */                                      \
     __result;                               \
 }))
 
@@ -642,7 +642,7 @@ Bug: avrtc-536
     \note The address is a byte address.
     The address is in the program space. */
 
-#define pgm_read_byte_near(address_short) __LPM((uint16_t)(address_short))
+#define pgm_read_byte_near(address_short) __LPM((address_short))
 
 /** \ingroup avr_pgmspace
     \def pgm_read_word_near(address_short)

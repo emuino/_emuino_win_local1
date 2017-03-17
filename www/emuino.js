@@ -1,4 +1,8 @@
-var	tpl = { 
+var	tpl = {
+	cfg: {
+		prefix: '{{\\s*',
+		suffix: '\\s*}}',
+	},
 	replace: function (str, from, to) {
 		return str.split(from).join(to);	
 	},
@@ -8,7 +12,7 @@ var	tpl = {
 			var finish = false;
 			while(!finish) {
 				finish = true;
-				var regex = new RegExp(pattern);
+				var regex = new RegExp(tpl.cfg.prefix+pattern+tpl.cfg.suffix);
 				var match = str.match(regex);
 				if(match) {
 					str = tpl.replace(str, match[0], tpl.replace(replacement, '{match}', match[1]));
@@ -24,19 +28,19 @@ var	tpl = {
 		str = tpl.replace(str, '"', '\\"');		
 		
 		// replace loops
-		str = rep(str, '{{\\s*#\\s*([^}]+)\\s*}}', '"; for({match}){ __tpl_output += "');
+		str = rep(str, '#\\s*([^}]+)', '"; for({match}){ __tpl_output += "');
 
 		// replace if
-		str = rep(str, '{{\\s*\\?\\s*([^}]+)\\s*}}', '"; if({match}){ __tpl_output += "');
+		str = rep(str, '\\?\\s*([^}]+)', '"; if({match}){ __tpl_output += "');
 
 		// replace else
-		str = rep(str, '{{\\s*:\\s*}}', '"; } else { __tpl_output += "');
+		str = rep(str, ':', '"; } else { __tpl_output += "');
 
 		// replace end sequences
-		str = rep(str, '{{\\s*[#?/]\\s*}}', '"; } __tpl_output += "');
+		str = rep(str, '[#?/]', '"; } __tpl_output += "');
 
 		// replace variables
-		str = rep(str, '{{\\s*([^}]+)\\s*}}', '"+{match}+"');	
+		str = rep(str, '([^}]+)', '"+{match}+"');
 
 		var vardefs = '';
 		for(k in data) {
@@ -47,21 +51,21 @@ var	tpl = {
 		
 		return str;
 	},
-	cache: {},
+	cacheUrl: {},
 	parseUrl: function(url, data, callback) {
-		if(typeof this.cache[url] == 'undefined') {
+		if(typeof this.cacheUrl[url] == 'undefined') {
 			var _this = this;
 			var _url = url;
 			var _data = data;
 			var _callback = callback;
 			$.get(url, function(resp){
-				_this.cache[_url] = resp;
+				_this.cacheUrl[_url] = resp;
 				_this.parseUrl(_url, _data, function(results){
 					_callback(results)
 				});
 			});
 		} else {
-			callback(this.parseStr(this.cache[url], data));
+			callback(this.parseStr(this.cacheUrl[url], data));
 		}
 	}
 };

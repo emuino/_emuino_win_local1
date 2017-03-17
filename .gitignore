@@ -8,3 +8,4 @@
 pipe_*
 *.layout
 *.h.gch
+*.log

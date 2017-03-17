@@ -132,34 +132,36 @@ emuino.init = function() {
 		if($('#'+dndNextID).length>0) {
 			throw "DOM element already exists: #"+name+"-"+guid;
 		}
-		$('.dnd-container').append(
-			'<div id="'+dndNextID+'" class="dnd-box">'+
-			'	<div class="dnd-title">'+name+' (guid:'+guid+')</div>'+
-			'	<div id="'+dndNextID+'-contents" class="dnd-contents"></div>'+
-			'</div>'
-		);		
-		$('#'+dndNextID).draggable({
-			handle: '.dnd-title'
+		
+		tpl.parseUrl('tpls/dnd-box.tpl', {
+			'dndNextID' : dndNextID,
+			'name': name,
+			'guid': guid,
+		}, function(results){
+			$('.dnd-container').append(results);
+			$('#'+dndNextID).draggable({
+				handle: '.dnd-title'
+			});
+			$('#'+dndNextID+' .dnd-title').disableSelection();
+			$('#'+dndNextID).resizable();
+			$('#'+dndNextID).css({
+				top: ((dndCounter%10)*30) + 'px',
+				left: ((dndCounter%10)*30) + 'px',
+				'z-index': (++dndZIndexMax)
+			});
+			$('#'+dndNextID).mousedown(function(){			
+				$(this).css('z-index', (++dndZIndexMax));
+			});
+			var device = new emuino.exts[name]($('#'+dndNextID+'-contents'), guid, args);
+			if(!devices[name]) {
+				devices[name] = [];
+			}
+			if(devices[name][guid]) {
+				throw "device already exists: "+name+" giud="+guid;
+			}
+			devices[name][guid] = device;
+			console.log(devices);
 		});
-		$('#'+dndNextID+' .dnd-title').disableSelection();
-		$('#'+dndNextID).resizable();
-		$('#'+dndNextID).css({
-			top: ((dndCounter%10)*30) + 'px',
-			left: ((dndCounter%10)*30) + 'px',
-			'z-index': (++dndZIndexMax)
-		});
-		$('#'+dndNextID).mousedown(function(){			
-			$(this).css('z-index', (++dndZIndexMax));
-		});
-		var device = new emuino.exts[name]($('#'+dndNextID+'-contents'), guid, args);
-		if(!devices[name]) {
-			devices[name] = [];
-		}
-		if(devices[name][guid]) {
-			throw "device already exists: "+name+" giud="+guid;
-		}
-		devices[name][guid] = device;
-		console.log(devices);
 	};
 	
 	this.remove = function(name, guid) {
@@ -176,8 +178,6 @@ emuino.init = function() {
 
 	ws.onmessage = function(event) {
 		console.log("received:", event.data);
-		//document.getElementById('msgBox').innerHTML = event.data;
-		//document.getElementById('outMsg').value='';
 		eval(event.data);
 	}
 

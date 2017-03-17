@@ -3,70 +3,40 @@ var	tpl = {
 		return str.split(from).join(to);	
 	},
 	parseStr: function (str, data) {		
-		output = '';		
+
+		var rep = function(str, pattern, replacement) {
+			var finish = false;
+			while(!finish) {
+				finish = true;
+				var regex = new RegExp(pattern);
+				var match = str.match(regex);
+				if(match) {
+					str = tpl.replace(str, match[0], tpl.replace(replacement, '{match}', match[1]));
+					finish = false;
+				}
+			}
+			return str;
+		};
+
+		// escape
 		str = tpl.replace(str, '\r', '\\r');
 		str = tpl.replace(str, '\n', '\\n');
-		str = tpl.replace(str, '"', '\\"');
-
+		str = tpl.replace(str, '"', '\\"');		
+		
 		// replace loops
-		var finish = false;
-		while(!finish) {
-			finish = true;
-			var regex = new RegExp('{{\\s*#\\s*([^}]+)\\s*}}');
-			var match = str.match(regex);
-			if(match) {
-				str = tpl.replace(str, match[0], '"; for('+match[1]+'){ __tpl_output += "');
-				finish = false;
-			}
-		}
+		str = rep(str, '{{\\s*#\\s*([^}]+)\\s*}}', '"; for({match}){ __tpl_output += "');
 
 		// replace if
-		var finish = false;
-		while(!finish) {
-			finish = true;
-			var regex = new RegExp('{{\\s*\\?\\s*([^}]+)\\s*}}');
-			var match = str.match(regex);
-			if(match) {
-				str = tpl.replace(str, match[0], '"; if('+match[1]+'){ __tpl_output += "');
-				finish = false;
-			}
-		}
+		str = rep(str, '{{\\s*\\?\\s*([^}]+)\\s*}}', '"; if({match}){ __tpl_output += "');
 
 		// replace else
-		var finish = false;
-		while(!finish) {
-			finish = true;
-			var regex = new RegExp('{{\\s*:\\s*}}');
-			var match = str.match(regex);
-			if(match) {
-				str = tpl.replace(str, match[0], '"; } else { __tpl_output += "');
-				finish = false;
-			}
-		}
+		str = rep(str, '{{\\s*:\\s*}}', '"; } else { __tpl_output += "');
 
 		// replace end sequences
-		var finish = false;
-		while(!finish) {
-			finish = true;
-			var regex = new RegExp('{{\\s*[#?]\\s*}}');
-			var match = str.match(regex);
-			if(match) {
-				str = tpl.replace(str, match[0], '"; } __tpl_output += "');
-				finish = false;
-			}
-		}
+		str = rep(str, '{{\\s*[#?/]\\s*}}', '"; } __tpl_output += "');
 
 		// replace variables
-		var finish = false;
-		while(!finish) {
-			finish = true;
-			var regex = new RegExp('{{\\s*([^}]+)\\s*}}');
-			var match = str.match(regex);
-			if(match) {
-				str = tpl.replace(str, match[0], '"+'+match[1]+'+"');
-				finish = false;
-			}
-		}		
+		str = rep(str, '{{\\s*([^}]+)\\s*}}', '"+{match}+"');	
 
 		var vardefs = '';
 		for(k in data) {

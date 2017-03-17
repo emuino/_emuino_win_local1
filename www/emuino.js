@@ -1,7 +1,106 @@
+var	tpl = { 
+	replace: function (str, from, to) {
+		return str.split(from).join(to);	
+	},
+	parseStr: function (str, data) {		
+		output = '';		
+		str = tpl.replace(str, '\r', '\\r');
+		str = tpl.replace(str, '\n', '\\n');
+		str = tpl.replace(str, '"', '\\"');
+
+		// replace loops
+		var finish = false;
+		while(!finish) {
+			finish = true;
+			var regex = new RegExp('{{\\s*#\\s*([^}]+)\\s*}}');
+			var match = str.match(regex);
+			if(match) {
+				str = tpl.replace(str, match[0], '"; for('+match[1]+'){ __tpl_output += "');
+				finish = false;
+			}
+		}
+
+		// replace if
+		var finish = false;
+		while(!finish) {
+			finish = true;
+			var regex = new RegExp('{{\\s*\\?\\s*([^}]+)\\s*}}');
+			var match = str.match(regex);
+			if(match) {
+				str = tpl.replace(str, match[0], '"; if('+match[1]+'){ __tpl_output += "');
+				finish = false;
+			}
+		}
+
+		// replace else
+		var finish = false;
+		while(!finish) {
+			finish = true;
+			var regex = new RegExp('{{\\s*:\\s*}}');
+			var match = str.match(regex);
+			if(match) {
+				str = tpl.replace(str, match[0], '"; } else { __tpl_output += "');
+				finish = false;
+			}
+		}
+
+		// replace end sequences
+		var finish = false;
+		while(!finish) {
+			finish = true;
+			var regex = new RegExp('{{\\s*[#?]\\s*}}');
+			var match = str.match(regex);
+			if(match) {
+				str = tpl.replace(str, match[0], '"; } __tpl_output += "');
+				finish = false;
+			}
+		}
+
+		// replace variables
+		var finish = false;
+		while(!finish) {
+			finish = true;
+			var regex = new RegExp('{{\\s*([^}]+)\\s*}}');
+			var match = str.match(regex);
+			if(match) {
+				str = tpl.replace(str, match[0], '"+'+match[1]+'+"');
+				finish = false;
+			}
+		}		
+
+		var vardefs = '';
+		for(k in data) {
+			vardefs += k+' = '+JSON.stringify(data[k])+";";
+		}
+
+		str = eval('(function(){'+vardefs+' var __tpl_output = "'+str+'"; return __tpl_output;})');
+		
+		return str;
+	},
+	cache: {},
+	parseUrl: function(url, data, callback) {
+		if(typeof this.cache[url] == 'undefined') {
+			var _this = this;
+			var _url = url;
+			var _data = data;
+			var _callback = callback;
+			$.get(url, function(resp){
+				_this.cache[_url] = resp;
+				_this.parseUrl(_url, _data, function(results){
+					_callback(results)
+				});
+			});
+		} else {
+			callback(this.parseStr(this.cache[url], data));
+		}
+	}
+};
+
+
 
 // device extensions
 var emuino = {
-	exts: {}
+	exts: {},
 };
 
 emuino.exts.Arduino = function($elem, guid, args) {
@@ -11,11 +110,16 @@ emuino.exts.Arduino = function($elem, guid, args) {
 	
 	
 	this.refresh = function() {
-		var html = '';
-		for(var k in pins) {
-			html+= '<div class="arduino-pin"><span class="pin-no">'+k+'</span><span class="pin-mode">'+pinModes[k]+'</span><span class="pin-value">'+pins[k]+'</span></div>';
-		}
-		$elem.html(html);
+		//var html = '';
+		tpl.parseUrl('exts/Arduino/pins.tpl', {
+			'values': pins,
+			'modes': pinModes
+		}, function(html){			
+			// for(var k in pins) {
+				// html+= '<div class="arduino-pin"><span class="pin-no">'+k+'</span><span class="pin-mode">'+pinModes[k]+'</span><span class="pin-value">'+pins[k]+'</span></div>';
+			// }
+			$elem.html(html);
+		});
 	};
 	
 	this.setPinMode = function(pin, value) {
@@ -45,6 +149,9 @@ emuino.exts.Arduino = function($elem, guid, args) {
 
 emuino.init = function() {
 	var devices = {};
+	this.getDevices = function(){
+		return devices;
+	};
 	
 	var dndCounter = 0;
 	var dndZIndexMax = 0;

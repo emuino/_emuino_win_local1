@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf8">
 <title>Emuino</title>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="emuino.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
 <script src="emuino.js"></script>
 </head>
 <body>
-	<div id='msgBox'>Nothing sent yet!</div>
-	<input type="text" id="outMsg">
-	<button type="button" onclick="send()">Send</button>
+	<ul class="emu-toolbar">
+		<li class="emu-button" style="background-image: url(https://chocolatey.org/content/packageimages/arduino.1.6.7.png);" onclick="emuino.start();">
+		</li>
+	</ul>
 	<div class="dnd-container"></div>
+	<div class="emu-stat"></div>
 </body>
 </html>

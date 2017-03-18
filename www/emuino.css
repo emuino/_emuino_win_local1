@@ -7,19 +7,137 @@ html, body {
 	padding: 0;
 	border: none;
 	font-family: monospace;
+	overflow: hidden;
+	position: relative;
+}
+
+label {
+	display: block;
+	margin: 30px 0 0 0;
+}
+
+.hidden {
+	display: none;
+}
+
+#preloader {
+	z-index: 100000;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: black;
+	opacity: 0.8;	
+	background-image: url(images/preloader.gif);
+	background-position: center;
+	background-repeat: no-repeat;
+}
+#preloader .stat {
+	position: absolute;
+	z-index: 100001;
+	text-align: center;
+	top: calc(50% + 150px);
+	left: 0;
+	width: 100%;
+	background: transparent;
+	color: #cbeff5;
+}
+
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+::-webkit-scrollbar-thumb {
+  background: #97ddea;
+  border: 1px solid #cbeff5;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1e8fa4;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #0d3c44;
+}
+::-webkit-scrollbar-track {
+  background: #265150;
+  border: 1px solid #95dfec;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track:hover {
+  background: #23b0c9;
+}
+::-webkit-scrollbar-track:active {
+  background: #58d6d2;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+.emu-toolbar {
+	width: 100%;
+	height: 64px;
+	color: white;
+	border-bottom: 1px solid #666666;
+	padding: 0;
+	margin: 0;
+	z-index: 1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	
+	background: #00989d;
+	background: -moz-linear-gradient(left, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
+	background: -webkit-gradient(left top, right top, color-stop(0%, #00989d), color-stop(51%, #149c9e), color-stop(68%, #2bb1b3), color-stop(84%, #25b3b8), color-stop(100%, #25b3b8));
+	background: -webkit-linear-gradient(left, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
+	background: -o-linear-gradient(left, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
+	background: -ms-linear-gradient(left, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
+	background: linear-gradient(to right, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
+	
+	-webkit-box-shadow: 0px -15px 15px 17px rgba(0,0,0,0.75);
+	-moz-box-shadow: 0px -15px 15px 17px rgba(0,0,0,0.75);
+	box-shadow: 0px -15px 15px 17px rgba(0,0,0,0.75);
+	
+}
+
+.emu-button {
+	display: block;
+	float: left;
+	padding: 0;
+	margin: 9px;
+	width: 42px;
+	height: 42px;
+    background-size: contain;
+    background-repeat: no-repeat;
+	list-style-type: none;
+	opacity: 0.8;
+	cursor: pointer;
+}
+
+.emu-button:hover {
+	opacity: 1;
+}
+
+.emu-button:active {
+	opacity: 0.5;
 }
 
 .dnd-container {
-	width: 95%;
-	height: 95%;
+	width: 100%;
+	height: calc(100% - 86px);
+	top: 65px;
 	overflow: scroll;
-	border: 1px solid #00979D;	
 	background-color: gray;
 	position: relative;
-	
 	-webkit-box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);
 	-moz-box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);
-	box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);	
+	box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);
 }
 
 .dnd-box {
@@ -71,4 +189,20 @@ html, body {
     color: black;
 	padding: 5px 10px;
 	
+}
+
+
+.emu-stat {
+	position: absolute;
+	bottom: 0;
+	height: 20px;
+	background-color: black;
+	color: lightblue;
+	border-top: 1px solid gray;
+	width: 100%;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 18px;    
+	unicode-bidi: embed;
+    /* white-space: pre; */
 }

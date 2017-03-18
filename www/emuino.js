@@ -6,7 +6,7 @@ var	tpl = {
 	replace: function (str, from, to) {
 		return str.split(from).join(to);	
 	},
-	parseStr: function (str, data) {		
+	parseStr: function (str, data) {	
 
 		var rep = function(str, pattern, replacement) {
 			var finish = false;
@@ -71,9 +71,71 @@ var	tpl = {
 };
 
 
+var dialog = function(title, tplUrl, tplData, settings) {
+	if(!$('#msgbox').length) {
+		$('body').append('<div id="msgbox" style="display: none;"></div>');
+	}
+	$('#msgbox').attr('title', title);
+	tpl.parseUrl(tplUrl, tplData, function(html){
+		$('#msgbox').html(html);
+		$('#msgbox select').selectmenu();
+		$('#msgbox .autocomplete').each(function(i,e){
+			$(e).autocomplete({
+				source: $(e).attr('data-source')
+			});
+		});
+		$('#msgbox').dialog(settings);
+	});
+};
 
-// device extensions
+
+var preloader = {
+	counter: 0,
+	msg: function(msg) {
+		if(preloader.counter<=0) {
+			throw "tried to show a preloader message but there is no any preloader open";
+		}
+		$('#preloader .stat').html(msg);
+	},
+	on: function(msg) {
+		if(!$('#preloader').length) {
+			$('body').append('<div id="preloader"><div class="stat"></div></div>');
+		}
+		$('#preloader').fadeIn();
+		preloader.counter++;
+		
+		if(typeof msg != 'undefined') {
+			preloader.msg(msg);
+		}
+	},
+	off: function() {
+		preloader.counter--;
+		if(preloader.counter < 0) {
+			throw "tried to close a preloader but there is no more open..";
+		}
+		if(preloader.counter == 0) {
+			$('#preloader').hide();
+		}
+	},
+	get: function(url, cb) {
+		preloader.on();
+		$.get(url, function(resp){
+			preloader.off();
+			if(cb) {
+				cb(resp);
+			} else if(resp) {
+				alert(resp);
+			}
+		});
+	},
+};
+
+
+
+
+
 var emuino = {
+	// device extensions
 	exts: {},
 };
 
@@ -122,6 +184,38 @@ emuino.exts.Arduino = function($elem, guid, args) {
 
 
 emuino.init = function() {
+	this.statmsg = function(msg) {
+		$('.emu-stat').html(msg);
+	};
+	
+	emuino.statmsg('Emuino client started, initialize..');
+	
+	preloader.on('initialize..');	
+	
+	var ws = new WebSocket('ws://127.0.0.1:8080/');
+	
+	ws.onerror = function(event) {
+		emuino.statmsg('websocket error');
+		alert('Connection to WebSocekt server faild, please run wsd.bat');
+		document.location.href = document.location.href;
+	};
+	
+	ws.onmessage = function(event) {
+		if(event.data) {
+			emuino.statmsg("received: "+event.data);
+			eval(event.data);
+		}
+	};
+	
+	ws.onopen = function(event) {
+		preloader.off();
+		emuino.statmsg("wsd connected.");
+	}
+	
+	
+
+	
+	
 	var devices = {};
 	this.getDevices = function(){
 		return devices;
@@ -144,7 +238,14 @@ emuino.init = function() {
 		}, function(results){
 			$('.dnd-container').append(results);
 			$('#'+dndNextID).draggable({
-				handle: '.dnd-title'
+				handle: '.dnd-title',
+				stop: function() {
+					$('.dnd-box').each(function(i,e){
+						if(parseInt($(e).css('top')) < 0) {
+							$(e).css('top', '0px');
+						}
+					});
+				}
 			});
 			$('#'+dndNextID+' .dnd-title').disableSelection();
 			$('#'+dndNextID).resizable();
@@ -176,14 +277,37 @@ emuino.init = function() {
 	};
 	
 
-	console.log('Emuino client started');
 
-	var ws = new WebSocket('ws://127.0.0.1:8080/');
-
-	ws.onmessage = function(event) {
-		console.log("received:", event.data);
-		eval(event.data);
-	}
+	
+	this.start = function() {
+		dialog('Start', 'tpls/start.tpl', {}, {
+			modal: true,
+			buttons: {
+				'Load': function() {
+					emuino.loadArduino($('[name=device]').val(), $('[name=skatch]').val());
+					$(this).dialog( "close" );
+				},
+				'Cancel': function() {
+					$(this).dialog( "close" );
+				}
+			}
+		});
+	};
+	
+	this.createSkatch = function(fname) {
+		if(fname.substr(-4)!='.ino') {
+			alert('File extension should be a ".ino"!');
+			return;
+		}
+		preloader.get('createSkatch.php?fname='+fname);
+	};
+	
+	this.loadArduino = function(deviceType, skatchFileName) {
+		preloader.get('rebuildSkatch.php?device='+deviceType+'&fname='+skatchFileName);
+		alert('TODO: load Arduino (rebuild cpp source with skatch.ino) and run: '+deviceType+', '+skatchFileName);
+	};
+	
+	
 
 	function send()
 	{

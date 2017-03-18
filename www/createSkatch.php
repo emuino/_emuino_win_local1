@@ -1,0 +1,29 @@
+<?php
+
+$fname = isset($_GET['fname']) ? $_GET['fname'] : null;
+if(!$fname) {
+	die("File name didn't set");
+}
+
+$skatch = <<<__SKATCH_CONTENTS__
+// TODO: add wiki: .ino code hinghlight in Dev-C++ settings at Tools -> Editor Option -> Colors -> bottom of window..
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  delay(1000);                       // wait for a second
+}
+__SKATCH_CONTENTS__;
+
+if(!file_put_contents('../emuino/skatch/'.$fname, $skatch)) {
+	die("File write error");
+}
+sleep(4);

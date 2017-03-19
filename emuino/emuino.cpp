@@ -7,10 +7,10 @@
 #define __EMU__
 
 // TODO: add it to the wiki
-#define SKATCH "skatch/skatch.ino"
+#define SKETCH "sketch/sketch.ino"
 
 // TODO: emulated Arduino device type definition
-#define __AVR_ATxmega384D3__
+#define __AVR_ATxmega384D3__ //__DEVICE_TYPE__ - ************** DO NOT REMOVE THIS COMMENT! ITS NEED TO RE-PARSING THIS SOURCECODE !!! *****************
 // todo measure the CPU speed or just rewrite the delay.h, interrupt.h etc.. tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
 #define F_CPU 1000000UL
 
@@ -111,10 +111,10 @@ public:
 
 
 
-class Skatch {
+class Sketch {
 public:
-#include SKATCH
-} skatch;
+#include SKETCH
+} sketch;
 
 
 
@@ -123,10 +123,10 @@ public:
 class Emuino {
 private:
 
-	int guid;
+	int id;
 	
 	int pinModes[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
-	int pins[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
+	int pinValues[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
 	
 	
 	void reset() {
@@ -134,7 +134,7 @@ private:
 		// todo: reset pins and all of emulated arduino
 		for(int i=0; i<NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS; i++) {
 			setPinMode(i, 0);
-			setPin(i, 0);
+			setPinValue(i, 0);
 		}
 	}
 	
@@ -143,27 +143,27 @@ public:
 	
 	void setPinMode(int pin, int mode) {
 		pinModes[pin] = mode;
-		emuPipe.sendf("devices.Arduino[%d].setPinMode(%d, %d);", guid, pin, mode);
+		emuPipe.sendf("devices.Arduino[%d].setPinMode(%d, %d);", id, pin, mode);
 	}
 	
-	void setPin(int pin, int value) {
-		pins[pin] = value;
-		emuPipe.sendf("devices.Arduino[%d].setPin(%d, %d);", guid, pin, value);
+	void setPinValue(int pin, int value) {
+		pinValues[pin] = value;
+		emuPipe.sendf("devices.Arduino[%d].setPinValue(%d, %d);", id, pin, value);
 	}
 	
 	Emuino() {
 		emuLogger.clear();
 		srand(time(NULL));
-		guid = rand();
+		id = rand();
 		emuLogger.log("[EMUINO] start");
-		emuPipe.sendf("emuino.make('Arduino', '%d', {});", guid);
+		emuPipe.sendf("emuino.make('Arduino', '%d', {});", id);
 		reset();
-		emuLogger.log("[emuino skatch]: setup..");
-		skatch.setup();
-		emuLogger.log("[emuino skatch]: loop start.. (press a key to stop)");
+		emuLogger.log("[emuino sketch]: setup..");
+		sketch.setup();
+		emuLogger.log("[emuino sketch]: loop start.. (press a key to stop)");
 		while(!kbhit()) {
 			emuPipe.read();
-			skatch.loop();
+			sketch.loop();
 		}
 		emuLogger.log("[EMUINO] halt");
 		getch();
@@ -171,7 +171,7 @@ public:
 	}
 	
 	~Emuino() {		
-		emuPipe.sendf("emuino.remove('Arduino', '%d', {});", guid);
+		emuPipe.sendf("emuino.remove('Arduino', '%d', {});", id);
 		emuLogger.log("[EMUINO] end");
 	}
 } emu;

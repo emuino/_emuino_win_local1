@@ -1,4 +1,4 @@
-// TODO: add wiki: .ino code hinghlight in Dev-C++ settings at Tools -> Editor Option -> Colors -> bottom of window..
+// TODO: add wiki: .ino code highlight in Dev-C++ settings at Tools -> Editor Option -> Colors -> bottom of window..
 
 // the setup function runs once when you press reset or power the board
 void setup() {

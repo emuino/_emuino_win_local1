@@ -63,23 +63,22 @@ public:
 	
 } emuLogger;
 
+class EmuinoClientEventHandler {
+public:
+	virtual void cliCmd(char* cmdStr);
+};
 
 
-class EmuinoPipe {
+class EmuinoPipe : EmuinoClientEventHandler {
 public:
 	
-	void cliCmd(char* cmd) {
-		emuLogger.log("[pipe cli cmd]: run:");
-		emuLogger.log(cmd);
-		// todo: run client command..
-		
-	}
+
 	
 	void send(char* msg) {
 		emuLogger.log("[pipe send]: start:");
 		emuLogger.log(msg);
 		emuFileHandler.fappendln("../pipe_srv", msg);
-		while(emuFileHandler.fsize("../pipe_srv"));
+		while(emuFileHandler.fsize("../pipe_srv")); // TODO may we need at client sending aldo!!
 		emuLogger.log("[pipe send]: finish");
 	}
 	
@@ -91,22 +90,35 @@ public:
 		send (buffer);
 		va_end (args);
 	}
-	
-	void read() {	
+		
+	void read() {
 		//log("[pipe read]: start");	
 		FILE* f = fopen("../pipe_cli", "r+");
+		bool clearNeeded = false;
 		if(f!=NULL) {
 			char line[255];
 			while (fgets(line, sizeof(line), f)) {
 				cliCmd(line);
+				clearNeeded = true;
 			}
 			fclose(f);		
-			fclose(fopen("../pipe_cli", "w"));
+			if(clearNeeded) {
+				clear();
+			}
 			//log("[pipe read]: finish");
 		}
 	}
 	
-} emuPipe;
+	void clear() {
+		fclose(fopen("../pipe_cli", "w"));
+	}
+	
+	void cliCmd(char* cmdStr) {
+		emuLogger.log("[pipe cli cmd]: run:");
+		emuLogger.log(cmdStr);
+		// todo: run client command..
+	}
+};
 
 
 
@@ -120,7 +132,7 @@ public:
 
 
 
-class Emuino {
+class Emuino : public EmuinoPipe {
 private:
 
 	int id;
@@ -141,28 +153,19 @@ private:
 
 public:
 	
-	void setPinMode(int pin, int mode) {
-		pinModes[pin] = mode;
-		emuPipe.sendf("devices.Arduino[%d].setPinMode(%d, %d);", id, pin, mode);
-	}
-	
-	void setPinValue(int pin, int value) {
-		pinValues[pin] = value;
-		emuPipe.sendf("devices.Arduino[%d].setPinValue(%d, %d);", id, pin, value);
-	}
-	
 	Emuino() {
-		emuLogger.clear();
 		srand(time(NULL));
 		id = rand();
+		fclose(fopen("../pipe_cli", "w"));
+		emuLogger.clear();
 		emuLogger.log("[EMUINO] start");
-		emuPipe.sendf("emuino.make('Arduino', '%d', {});", id);
+		sendf("emuino.make('Arduino', '%d', {});", id);
 		reset();
 		emuLogger.log("[emuino sketch]: setup..");
 		sketch.setup();
 		emuLogger.log("[emuino sketch]: loop start.. (press a key to stop)");
 		while(!kbhit()) {
-			emuPipe.read();
+			read();
 			sketch.loop();
 		}
 		emuLogger.log("[EMUINO] halt");
@@ -170,8 +173,71 @@ public:
 		getch();
 	}
 	
+	void setPinMode(int pin, int mode) {
+		pinModes[pin] = mode;
+		sendf("devices.Arduino[%d].setPinMode(%d, %d);", id, pin, mode);
+	}
+	
+	void setPinValue(int pin, int value) {
+		pinValues[pin] = value;
+		sendf("devices.Arduino[%d].setPinValue(%d, %d);", id, pin, value);
+	}
+		
+	int getStrArrVal(int idx, char str[]) {
+		int i=0, val;
+		char sepa = ',';
+		if(idx<0) throw "negative array index?! hmm...";
+		while(!(str[i]==0||str[i]=='\n') && i<255){
+			if(idx==0) {
+				val = 0;
+				while(!(str[i]==0||str[i]=='\n'||str[i]==sepa) && i<255) {
+					val = val*10 + (str[i]-'0');
+					i++;
+				}
+				// todo check that its numeric
+				return val;
+			}
+			if(str[i]==sepa) {
+				idx--;
+			}
+			i++;
+		}
+		// todo ?? no value..
+	}
+	
+	void cliCmd(char* cmdStr) {
+		EmuinoPipe::cliCmd(cmdStr);
+		printf("dx1(%s)",cmdStr);
+		
+		// TODO parse cmd array here!! format: "cmd,id,arg0,arg1,arg..." todo check wssd project: do we need to take a \n to end of lines??
+		int id = getStrArrVal(1, cmdStr);
+		printf("dx2(%s)",cmdStr);
+		if(id != this->id) {
+			emuLogger.log("invalid client id (hmm.. may a client doesn't closed correctly?!')");
+		}
+		else {
+			printf("dx3(%s)",cmdStr);
+			int cmd = getStrArrVal(0, cmdStr);
+			printf("dx4(%s)",cmdStr);
+			switch(cmd) {
+				case 0: // setPinValue
+				{
+					printf("dx5(%s)",cmdStr);
+					int pin = getStrArrVal(2, cmdStr);
+					printf("dx6(%s)",cmdStr);
+					int value = getStrArrVal(3, cmdStr);
+					setPinValue(pin, value);
+					break;
+				}
+					
+				default:
+					emuLogger.log("invalid command");
+			}
+		}		
+	}
+	
 	~Emuino() {		
-		emuPipe.sendf("emuino.remove('Arduino', '%d', {});", id);
+		sendf("emuino.remove('Arduino', '%d', {});", id);
 		emuLogger.log("[EMUINO] end");
 	}
 } emu;

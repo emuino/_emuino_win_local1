@@ -281,7 +281,7 @@ emuino.exts.Arduino = function($elem, id, args) {
 	this.setPinValue = function(pin, value) {
 		var setValue = function(pin, value) {		
 			pins[pin]['value'] = value;
-			$('.arduino-pin.no-'+pin+' .pin-value').html(value);	
+			$('.arduino-pin[data-pin='+pin+'] .pin-value').html(value);	
 		};
 		if(typeof pins[pin] == 'undefined') {
 			pins[pin] = emptyPin;
@@ -296,7 +296,7 @@ emuino.exts.Arduino = function($elem, id, args) {
 	this.btnPinValueSetterMouseDown = function(e) {
 		console.log(e);
 		$pin = $(e).closest('.arduino-pin');
-		$pin.find('input[name=\"vset\"]').val($pin.find('input[name=\"vold\"]').val());
+		$pin.find('input[name=\"vold\"]').val($pin.find('input[name=\"vset\"]').val());
 		emuino.send('sendPinValue', [id, $pin.attr('data-pin'), $pin.find('input[name=\"vset\"]').val()]);
 	};
 	

@@ -50,6 +50,7 @@ void in()
         	
 			pipelog("[in]: lock mutex and write out a message to pipe_cli:");
 			pipelog(line);			
+			line += '\n';
             m.lock();
             fappend("pipe_cli", line);
             m.unlock();

@@ -31,6 +31,8 @@ var	tpl = {
 		return str.split(from).join(to);	
 	},
 	parseStr: function (str, data) {
+		
+		var inp = str;
 
 		var rep = function(str, pattern, replacement) {
 			var finish = false;
@@ -74,7 +76,10 @@ var	tpl = {
 		try {
 			str = eval('(function(){'+vardefs+' var __tpl_output = "'+str+'"; return __tpl_output;})');
 		} catch(e) {
+			console.log(inp);
+			console.log(str);
 			console.error(e);
+			return inp;
 		}
 		
 		return str;
@@ -237,7 +242,7 @@ var emuino = {
 };
 
 emuino.exts.Arduino = function($elem, id, args) {
-	
+
 	var pins = [];
 	
 	var emptyPin = {
@@ -248,6 +253,7 @@ emuino.exts.Arduino = function($elem, id, args) {
 	
 	this.refreshPins = function(cb) {
 		tpl.parseUrl('exts/Arduino/pins.tpl', {
+			'id': id,
 			'pins': pins,
 		}, function(html){
 			$elem.html(html);
@@ -287,18 +293,24 @@ emuino.exts.Arduino = function($elem, id, args) {
 		}
 	};
 	
+	this.btnPinValueSetterMouseDown = function(e) {
+		console.log(e);
+		$pin = $(e).closest('.arduino-pin');
+		$pin.find('input[name=\"vset\"]').val($pin.find('input[name=\"vold\"]').val());
+		emuino.send('sendPinValue', [id, $pin.attr('data-pin'), $pin.find('input[name=\"vset\"]').val()]);
+	};
+	
+	this.btnPinValueSetterMouseUp = function(e) {
+		console.log(e);
+	};
+	
 	console.log('init an arduino - $elem, id, args: ', $elem, id, args);
 	
 	loadStyle('exts/Arduino/arduino.css');
 	
-	$elem.html('an Arduino loaded..');
+	$elem.html('an Arduino loading..');
 	
 	
-	
-	// devices loops
-	//setInterval(function(){
-	//	console.log('arduino device is working in loop.. giud:', id);
-	//}, 400);	
 };
 
 // TODO: add more extension here or load dynamically
@@ -342,11 +354,11 @@ emuino.init = function() {
 	
 	var handleWsdCmd = function(cmd) {
 		try {
-			eval(event.data);
+			eval(cmd);
 		} catch(e) {
-			console.log('stucked command: '+event.data+', full exception: ', e);
-			console.log('try to run cmd after 1 sec again: '+event.data);
-			var cmd = event.data;
+			// console.log('stucked command: '+cmd+', full exception: ', e);
+			// console.log('try to run cmd after 1 sec again: '+cmd);
+			var cmd = cmd;
 			setTimeout(function(){
 				handleWsdCmd(cmd);
 			}, 1000);
@@ -492,10 +504,15 @@ emuino.init = function() {
 	
 	
 
-	function send()
-	{
+	this.send = function(cmd, args)	{
+		var cmdMap = {
+			sendPinValue: 0
+		};
 		// todo...
-		ws.send(document.getElementById('outMsg').value);
+		//ws.send(document.getElementById('outMsg').value);
+		c = cmdMap[cmd] + ',' + args.join(',');
+		emuino.statmsg('send command "'+cmd+'": '+c);
+		ws.send(c);
 	}	
 };
 

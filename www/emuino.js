@@ -1,3 +1,27 @@
+var ajax = {
+	getNoCache: function() {
+		var $script = $('head script[src$="emuino.js?_nocache="]');
+		return $script.lenght > 0 ? $script.attr('src').split('emuino.js?_nocache=')[1] : null;
+	},
+	getUrl: function(url) {
+		var nocacheArg = '_ajax_nocache=';
+		if(ajax.getNoCache() && url.split(nocacheArg).lenght>1) {
+			if(url.split('?').length>1) {
+				url += '&';
+			} else {
+				url += '?';
+			}
+			url += nocacheArg+parseInt(Math.random()*100000);
+		}
+		return url;
+	},
+	get: function(url, a,b,c) {
+		url = ajax.getUrl(url);
+		$.get(url,a,b,c);
+	},
+	// TODO POST..
+};
+
 var	tpl = {
 	cfg: {
 		prefix: '{{\\s*',
@@ -6,7 +30,7 @@ var	tpl = {
 	replace: function (str, from, to) {
 		return str.split(from).join(to);	
 	},
-	parseStr: function (str, data) {	
+	parseStr: function (str, data) {
 
 		var rep = function(str, pattern, replacement) {
 			var finish = false;
@@ -47,18 +71,23 @@ var	tpl = {
 			vardefs += k+' = '+JSON.stringify(data[k])+";";
 		}
 
-		str = eval('(function(){'+vardefs+' var __tpl_output = "'+str+'"; return __tpl_output;})');
+		try {
+			str = eval('(function(){'+vardefs+' var __tpl_output = "'+str+'"; return __tpl_output;})');
+		} catch(e) {
+			console.error(e);
+		}
 		
 		return str;
 	},
 	cacheUrl: {},
 	parseUrl: function(url, data, callback) {
+		url = ajax.getUrl(url);
 		if(typeof this.cacheUrl[url] == 'undefined') {
 			var _this = this;
 			var _url = url;
 			var _data = data;
 			var _callback = callback;
-			$.get(url, function(resp){
+			ajax.get(url, function(resp){
 				_this.cacheUrl[_url] = resp;
 				_this.parseUrl(_url, _data, function(results){
 					_callback(results)
@@ -67,11 +96,47 @@ var	tpl = {
 		} else {
 			callback(this.parseStr(this.cacheUrl[url], data));
 		}
+	},
+};
+
+
+var	loadStyle = function(url, cb) {
+	var found = false;
+	$('link').each(function(i,e){
+		if(!found && $(e).attr('href') == url) {
+			found = true;
+			return;
+		}
+	});
+	if(!found) {
+		$('head').append('<link rel="stylesheet" type="text/css" href="'+url+'">');
+	}
+};
+
+var	loadScript = function(url, cb) {
+	var found = false;
+	$('script').each(function(i,e){
+		if(!found && $(e).attr('src') == url) {
+			found = true;
+			return;
+		}
+	});
+	if(!found) {
+		$('head').append('<script src="'+url+'"></script>');
 	}
 };
 
 
 var dialog = function(title, tplUrl, tplData, settings) {
+	if(typeof settings == 'undefined' || !settings) {
+		settings = {
+			buttons: {
+				Close: function() {
+					$(this).dialog( "close" );
+				}
+			}
+		}
+	}
 	if(!$('#msgbox').length) {
 		$('body').append('<div id="msgbox" style="display: none;"></div>');
 	}
@@ -86,6 +151,34 @@ var dialog = function(title, tplUrl, tplData, settings) {
 		});
 		$('#msgbox').dialog(settings);
 	});
+	
+};
+
+
+
+// TODO refact msgbox and dialog functions
+var msgbox = function(title, msg, settings) {
+	if(typeof settings == 'undefined' || !settings) {
+		settings = {
+			buttons: {
+				Close: function() {
+					$(this).dialog( "close" );
+				}
+			}
+		}
+	}
+	if(!$('#msgbox').length) {
+		$('body').append('<div id="msgbox" style="display: none;"></div>');
+	}
+	$('#msgbox').attr('title', title);
+	$('#msgbox').html(msg);
+	$('#msgbox select').selectmenu();
+	$('#msgbox .autocomplete').each(function(i,e){
+		$(e).autocomplete({
+			source: $(e).attr('data-source')
+		});
+	});
+	$('#msgbox').dialog(settings);
 };
 
 
@@ -101,7 +194,8 @@ var preloader = {
 		if(!$('#preloader').length) {
 			$('body').append('<div id="preloader"><div class="stat"></div></div>');
 		}
-		$('#preloader').fadeIn();
+		$('#preloader').css('z-index', $('#msgbox').css('z-index') + 1);
+		$('#preloader').show();
 		preloader.counter++;
 		
 		if(typeof msg != 'undefined') {
@@ -109,6 +203,7 @@ var preloader = {
 		}
 	},
 	off: function() {
+		preloader.msg('');
 		preloader.counter--;
 		if(preloader.counter < 0) {
 			throw "tried to close a preloader but there is no more open..";
@@ -117,9 +212,11 @@ var preloader = {
 			$('#preloader').hide();
 		}
 	},
-	get: function(url, cb) {
-		preloader.on();
-		$.get(url, function(resp){
+	get: function(url, cb, msg) {
+		emuino.statmsg('loading url: '+url);
+		preloader.on(msg);
+		ajax.get(url, function(resp){
+			emuino.statmsg('OK');
 			preloader.off();
 			if(cb) {
 				cb(resp);
@@ -139,43 +236,68 @@ var emuino = {
 	exts: {},
 };
 
-emuino.exts.Arduino = function($elem, guid, args) {
+emuino.exts.Arduino = function($elem, id, args) {
 	
-	var pinModes = [];
 	var pins = [];
 	
+	var emptyPin = {
+		'name': '',
+		'mode': 0,
+		'value': 0,
+	};
 	
-	this.refresh = function() {
-		//var html = '';
+	this.refreshPins = function(cb) {
 		tpl.parseUrl('exts/Arduino/pins.tpl', {
-			'values': pins,
-			'modes': pinModes
-		}, function(html){			
-			// for(var k in pins) {
-				// html+= '<div class="arduino-pin"><span class="pin-no">'+k+'</span><span class="pin-mode">'+pinModes[k]+'</span><span class="pin-value">'+pins[k]+'</span></div>';
-			// }
+			'pins': pins,
+		}, function(html){
 			$elem.html(html);
+			if(typeof cb !== 'undefined') {
+				cb();
+			}
 		});
 	};
 	
-	this.setPinMode = function(pin, value) {
-		pinModes[pin] = value;
-		this.refresh();
+	this.setPinMode = function(pin, mode) {
+		var setMode = function(pin, mode){			
+			pins[pin]['mode'] = mode;
+			$('.arduino-pin.no-'+pin+' .pin-mode').html(mode);
+		};
+		if(typeof pins[pin] == 'undefined') {
+			pins[pin] = emptyPin;
+			this.refreshPins(function(){
+				setMode(pin, mode);
+			});
+		} else {
+			setMode(pin, mode);
+		}
 	};
 	
-	this.setPin = function(pin, value) {
-		pins[pin] = value;
-		this.refresh();
+	this.setPinValue = function(pin, value) {
+		var setValue = function(pin, value) {		
+			pins[pin]['value'] = value;
+			$('.arduino-pin.no-'+pin+' .pin-value').html(value);	
+		};
+		if(typeof pins[pin] == 'undefined') {
+			pins[pin] = emptyPin;
+			this.refreshPins(function(){
+				setValue(pin, value);
+			});
+		} else {
+			setValue(pin, value);
+		}
 	};
 	
-	console.log('init an arduino - $elem, guid, args: ', $elem, guid, args);
+	console.log('init an arduino - $elem, id, args: ', $elem, id, args);
+	
+	loadStyle('exts/Arduino/arduino.css');
+	
 	$elem.html('an Arduino loaded..');
 	
 	
 	
 	// devices loops
 	//setInterval(function(){
-	//	console.log('arduino device is working in loop.. giud:', guid);
+	//	console.log('arduino device is working in loop.. giud:', id);
 	//}, 400);	
 };
 
@@ -184,37 +306,76 @@ emuino.exts.Arduino = function($elem, guid, args) {
 
 
 emuino.init = function() {
+	
+	
+	
 	this.statmsg = function(msg) {
 		$('.emu-stat').html(msg);
 	};
 	
 	emuino.statmsg('Emuino client started, initialize..');
 	
-	preloader.on('initialize..');	
+	preloader.on('loading..');	
 	
 	var ws = new WebSocket('ws://127.0.0.1:8080/');
 	
 	ws.onerror = function(event) {
 		emuino.statmsg('websocket error');
-		alert('Connection to WebSocekt server faild, please run wsd.bat');
-		document.location.href = document.location.href;
+		emuino.wsdRestart();
 	};
 	
-	ws.onmessage = function(event) {
+	this.wsdRestart = function() {
+		emuino.statmsg('WSD Restart: stop..');
+		preloader.get('runbat.php?f=wsdstop.bat', function(){
+			emuino.statmsg('WSD Restart: start..');
+			preloader.get('runbat.php?f=wsdstart.bat', function(){
+							
+			}, 'Lost connection to WebSocket server, please wait to reconnect..<br>WSD Restart: start..');
+			emuino.statmsg('WSD Restart: waiting for reconnect..');
+			
+			msgbox('Refres...', 'Connection refresh soon.. if the page doesn\'t refresh automatically please refresh it...', {buttons:{}});
+			setTimeout(function(){
+				document.location.href = document.location.href;
+			}, 8000);
+		}, 'Lost connection to WebSocket server, please wait to reconnect..<br>WSD Restart: stop..');
+	};
+	
+	var handleWsdCmd = function(cmd) {
+		try {
+			eval(event.data);
+		} catch(e) {
+			console.log('stucked command: '+event.data+', full exception: ', e);
+			console.log('try to run cmd after 1 sec again: '+event.data);
+			var cmd = event.data;
+			setTimeout(function(){
+				handleWsdCmd(cmd);
+			}, 1000);
+		}
+	}
+	
+	ws.onmessage = function(event) {		
 		if(event.data) {
 			emuino.statmsg("received: "+event.data);
-			eval(event.data);
+			handleWsdCmd(event.data);
 		}
 	};
 	
 	ws.onopen = function(event) {
 		preloader.off();
 		emuino.statmsg("wsd connected.");
+		emuino.start();
 	}
 	
 	
-
-	
+	window.addEventListener("beforeunload", function (e) {	
+		emuino.close();
+	});
+	//window.addEventListener("unload", function (e) {	
+	//	emuino.close();
+	//});
+	//$(window).unload(function(){
+	//	emuino.close();
+	//});
 	
 	var devices = {};
 	this.getDevices = function(){
@@ -223,18 +384,18 @@ emuino.init = function() {
 	
 	var dndCounter = 0;
 	var dndZIndexMax = 0;
-	this.make = function(name, guid, args) {
+	this.make = function(name, id, args) {
 		if(!args) args = {};
 		dndCounter++;
-		var dndNextID = 'dnd-'+name+'-'+guid;
+		var dndNextID = 'dnd-'+name+'-'+id;
 		if($('#'+dndNextID).length>0) {
-			throw "DOM element already exists: #"+name+"-"+guid;
+			throw "DOM element already exists: #"+name+"-"+id;
 		}
 		
 		tpl.parseUrl('tpls/dnd-box.tpl', {
 			'dndNextID' : dndNextID,
 			'name': name,
-			'guid': guid,
+			'id': id,
 		}, function(results){
 			$('.dnd-container').append(results);
 			$('#'+dndNextID).draggable({
@@ -257,22 +418,22 @@ emuino.init = function() {
 			$('#'+dndNextID).mousedown(function(){			
 				$(this).css('z-index', (++dndZIndexMax));
 			});
-			var device = new emuino.exts[name]($('#'+dndNextID+'-contents'), guid, args);
+			var device = new emuino.exts[name]($('#'+dndNextID+'-contents'), id, args);
 			if(!devices[name]) {
 				devices[name] = [];
 			}
-			if(devices[name][guid]) {
-				throw "device already exists: "+name+" giud="+guid;
+			if(devices[name][id]) {
+				throw "device already exists: "+name+" giud="+id;
 			}
-			devices[name][guid] = device;
+			devices[name][id] = device;
 			console.log(devices);
 		});
 	};
 	
-	this.remove = function(name, guid) {
-		$('#dnd-'+name+'-'+guid).remove();
-		devices[name][guid] = null;
-		delete devices[name][guid];
+	this.remove = function(name, id) {
+		$('#dnd-'+name+'-'+id).remove();
+		devices[name][id] = null;
+		delete devices[name][id];
 		console.log(devices);
 	};
 	
@@ -283,8 +444,8 @@ emuino.init = function() {
 		dialog('Start', 'tpls/start.tpl', {}, {
 			modal: true,
 			buttons: {
-				'Load': function() {
-					emuino.loadArduino($('[name=device]').val(), $('[name=skatch]').val());
+				'Rebuild and Run': function() {
+					emuino.loadArduino($('[name=device]').val(), $('[name=sketch]').val());
 					$(this).dialog( "close" );
 				},
 				'Cancel': function() {
@@ -294,17 +455,39 @@ emuino.init = function() {
 		});
 	};
 	
-	this.createSkatch = function(fname) {
+	this.create = function(fname) {
 		if(fname.substr(-4)!='.ino') {
 			alert('File extension should be a ".ino"!');
 			return;
 		}
-		preloader.get('createSkatch.php?fname='+fname);
+		preloader.get('create.php?fname='+fname, null, 'Create sketch file: '+fname);
 	};
 	
-	this.loadArduino = function(deviceType, skatchFileName) {
-		preloader.get('rebuildSkatch.php?device='+deviceType+'&fname='+skatchFileName);
-		alert('TODO: load Arduino (rebuild cpp source with skatch.ino) and run: '+deviceType+', '+skatchFileName);
+	this.loadArduino = function(device, sketchf) {
+		preloader.get('repair.php?device='+device+'&fname='+sketchf, function(){
+			//var elemsAtStart = $('.dnd-container *').length;
+			//msgbox('Rebuild and run', 'Please wait..');
+			preloader.get('runbat.php?f=rebuild.bat', function(){
+				preloader.get('run.php'/*'runbat.php?f=run.bat'*/, function(){ }, 'Run virtual device..');
+			}, 'Rebuild source files and make virtual device..');
+			//window.open('download.php?fname=rebuild_run.bat');
+			// var inter = setInterval(function(){
+				// if(elemsAtStart != $('.dnd-container *').length) {
+					// clearInterval(inter);
+					// $('#msgbox').dialog('close');
+				// }
+			// }, 300);
+			// todo watch the file time...
+		}, 'Repair source files..');
+		//alert('TODO: load Arduino (rebuild cpp source with sketch.ino) and run: '+deviceType+', '+sketchFileName);
+	};
+	
+	this.close = function() {
+		preloader.get('runbat.php?f=stop.bat', function() {  }, 'Server shut down..');
+		setTimeout(function(){
+			$('html').html('Connection closed, <button onclick="window.open(\"\", \"_self\").close();">click here to close</button> this browser tab<br>bye..');
+			window.open("", "_self").close();
+		}, 5000);
 	};
 	
 	

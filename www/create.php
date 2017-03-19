@@ -5,8 +5,8 @@ if(!$fname) {
 	die("File name didn't set");
 }
 
-$skatch = <<<__SKATCH_CONTENTS__
-// TODO: add wiki: .ino code hinghlight in Dev-C++ settings at Tools -> Editor Option -> Colors -> bottom of window..
+$sketch = <<<__SKETCH_CONTENTS__
+// TODO: add wiki: .ino code highlight in Dev-C++ settings at Tools -> Editor Option -> Colors -> bottom of window..
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -21,9 +21,9 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
 }
-__SKATCH_CONTENTS__;
+__SKETCH_CONTENTS__;
 
-if(!file_put_contents('../emuino/skatch/'.$fname, $skatch)) {
+if(!file_put_contents('../emuino/sketch/'.$fname, $sketch)) {
 	die("File write error");
 }
 sleep(4);

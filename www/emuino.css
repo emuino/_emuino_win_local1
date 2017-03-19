@@ -21,21 +21,20 @@ label {
 }
 
 #preloader {
-	z-index: 100000;
+	z-index: 1000;
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
 	background-color: black;
-	opacity: 0.8;	
+	opacity: 0.8;
 	background-image: url(images/preloader.gif);
 	background-position: center;
 	background-repeat: no-repeat;
 }
 #preloader .stat {
 	position: absolute;
-	z-index: 100001;
 	text-align: center;
 	top: calc(50% + 150px);
 	left: 0;
@@ -132,7 +131,7 @@ label {
 	width: 100%;
 	height: calc(100% - 86px);
 	top: 65px;
-	overflow: scroll;
+	overflow: auto;
 	background-color: gray;
 	position: relative;
 	-webkit-box-shadow: inset 0px 0px 250px 0px rgba(0,0,0,0.3);
@@ -141,18 +140,16 @@ label {
 }
 
 .dnd-box {
-	width: 300px;
-	height: 300px;
+	min-width: 50px;
+	min-height: 100px;
 	overflow: hidden;
 	border: 1px solid gray;
 	float: left;
-	position: absolute;
 	background-color: lightgray;
-	
+	position: absolute;
 	-webkit-box-shadow: 0px 3px 20px 0px rgba(0,0,0,0.6);
 	-moz-box-shadow: 0px 3px 20px 0px rgba(0,0,0,0.6);
 	box-shadow: 0px 3px 20px 0px rgba(0,0,0,0.6);
-
 	background: #ffffff;
 	background: -moz-linear-gradient(-45deg, #ffffff 0%, #f6f6f6 52%, #f2f2f2 100%);
 	background: -webkit-gradient(left top, right bottom, color-stop(0%, #ffffff), color-stop(52%, #f6f6f6), color-stop(100%, #f2f2f2));
@@ -160,17 +157,16 @@ label {
 	background: -o-linear-gradient(-45deg, #ffffff 0%, #f6f6f6 52%, #f2f2f2 100%);
 	background: -ms-linear-gradient(-45deg, #ffffff 0%, #f6f6f6 52%, #f2f2f2 100%);
 	background: linear-gradient(135deg, #ffffff 0%, #f6f6f6 52%, #f2f2f2 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f2f2f2', GradientType=1 );	
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f2f2f2', GradientType=1 );
 }
 
 .dnd-title {
 	font-family: verdana;
-	background-color: #00979D;
-    color: white;
+	white-space: nowrap;
+	color: white;
 	cursor: move;
 	padding: 5px 10px;
-    font-size: small;
-
+	font-size: small;
 	background: #00989d;
 	background: -moz-linear-gradient(left, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
 	background: -webkit-gradient(left top, right top, color-stop(0%, #00989d), color-stop(51%, #149c9e), color-stop(68%, #2bb1b3), color-stop(84%, #25b3b8), color-stop(100%, #25b3b8));
@@ -183,12 +179,11 @@ label {
 
 .dnd-contents {
 	max-width: 100%;
-	max-height: 100%;
-	overflow: hidden;
+	max-height: calc(100% - 36px);
+	overflow: auto;
 	background-color: transparent;
-    color: black;
+	color: black;
 	padding: 5px 10px;
-	
 }
 
 

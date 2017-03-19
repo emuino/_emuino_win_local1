@@ -90,7 +90,7 @@ int main() {
 	string lock = freadall("pipe_lock");
 	if(lock.length()) {
 		pipelog("[main]: pipe locked (exit)");
-		cout << "alert('exit: pipe locked, restart wsd first, (re)start wsd.bat or close all and run.bat'); document.location.href = document.location.href;" << endl;
+		cout << "emuino.wsdRestart();" << endl;
 		return -1;
 	}
 	

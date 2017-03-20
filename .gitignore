@@ -10,3 +10,4 @@ pipe_*
 *.h.gch
 *.log
 */gmon.out
+/nbproject/

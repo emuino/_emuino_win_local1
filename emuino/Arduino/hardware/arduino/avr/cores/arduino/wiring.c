@@ -64,7 +64,7 @@ static unsigned char timer0_fract = 0;
 
 unsigned long millis()
 {
-	unsigned long m;
+//	unsigned long m;
 //	uint8_t oldSREG = SREG;
 //
 //	// disable interrupts while we read timer0_millis or we might get an
@@ -72,12 +72,13 @@ unsigned long millis()
 //	cli();
 //	m = timer0_millis;
 //	SREG = oldSREG;
-
-	return m;
+//
+//	return m;
+	return emu.millis();
 }
 
 unsigned long micros() {
-	unsigned long m;
+//	unsigned long m;
 //	uint8_t oldSREG = SREG, t;
 //	
 //	cli();
@@ -101,11 +102,13 @@ unsigned long micros() {
 //	SREG = oldSREG;
 //	
 //	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
-	return m;
+//	return m;
+	emu.micros();
 }
 
 void delay(unsigned long ms)
 {
+	emu.delay(ms);
 //	uint32_t start = micros();
 //
 //	while (ms > 0) {
@@ -120,6 +123,7 @@ void delay(unsigned long ms)
 /* Delay for the given number of microseconds.  Assumes a 1, 8, 12, 16, 20 or 24 MHz clock. */
 void delayMicroseconds(unsigned int us)
 {
+	emu.delayMicroseconds(us);
 //	// call = 4 cycles + 2 to 4 cycles to init us(2 for constant delay, 4 for variable)
 //
 //	// calling avrlib's delay_us() function with low values (e.g. 1 or

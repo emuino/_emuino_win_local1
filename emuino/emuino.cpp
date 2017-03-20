@@ -47,7 +47,6 @@ void __emuasm__(const char* asmcode, ...) {
 // TODO change it if you need, Im not realy sure but I think it's related to Arduino device type
 #include <avr/iocanxx.h>
 
-#include <avr/cores/arduino/wiring.c>
 
 class EmuinoFileHandler {
 public:
@@ -166,6 +165,7 @@ private:
 	int pinModes[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
 	int pinValues[NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS];
 	
+	unsigned long _ms_start;
 	
 	void reset() {
 		emuLogger.log("[arduino]: reset..");
@@ -174,6 +174,7 @@ private:
 			setPinMode(i, 0);
 			setPinValue(i, 0);
 		}
+		_ms_start = (unsigned) -1;
 	}
 	
 
@@ -211,9 +212,46 @@ public:
 	
 	int getPinValue(int pin) {
 		if(pin >= NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS || pin < 0) {
-			throw "incorrect pin";
+			//throw "incorrect pin";
+			return 0;
 		}
 		return pinValues[pin];
+	}
+	
+	// wiring.c hooks
+		
+	unsigned long millis() {
+	    timeb tb;
+	    ftime(&tb);
+	    unsigned long current = tb.time * 1000 + tb.millitm;
+	    if(_ms_start == (unsigned) -1) {
+	        _ms_start = current;
+	    }
+	    // todo handleEnv(); need it???
+	    return current - _ms_start;
+	}
+	
+	unsigned long micros() {
+		// todo
+	}
+	
+	void delay(unsigned long ms) {
+#ifdef _WIN32	
+    unsigned long finish = millis() + ms;
+    while(millis()<finish){
+        // todo handleEnv(); need it???
+    };
+#else
+		usleep(ms*1000);
+#endif
+	}
+	
+	void delayMicroseconds(unsigned int us) {
+#ifdef _WIN32	
+		// todo
+#else	
+		usleep(us);
+#endif
 	}
 		
 	int getStrArrVal(int idx, char str[]) {
@@ -270,6 +308,7 @@ public:
 } emu;
 
 
+#include <avr/cores/arduino/wiring.c>
 #include <avr/cores/arduino/wiring_digital.c>
 
 

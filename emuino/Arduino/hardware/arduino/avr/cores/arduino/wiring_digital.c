@@ -166,7 +166,6 @@ void digitalWrite(uint8_t pin, uint8_t val)
 
 int digitalRead(uint8_t pin)
 {
-	return emu.getPinValue(pin);
 //	uint8_t timer = digitalPinToTimer(pin);
 //	uint8_t bit = digitalPinToBitMask(pin);
 //	uint8_t port = digitalPinToPort(pin);
@@ -179,4 +178,5 @@ int digitalRead(uint8_t pin)
 //
 //	if (*portInputRegister(port) & bit) return HIGH;
 //	return LOW;
+	return emu.getPinValue(pin) ? LOW : HIGH;
 }

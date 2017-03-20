@@ -15,15 +15,17 @@
 		<td><span class="pin-value">{{ pins[pin]['value'] }}</span></td>
 		<td>
 			<span class="pin-inp">
-				<input type="number" name="vset" value="0">
-				<input type="hidden" name="vold" value="{{ pins[pin]['value'] }}">
+				<input type="number" name="vset" value="1">
 			</span>
 			<span class="pin-btn">
 				<input type="button" value="Set" 
 					onmousedown="emuino.getDevices().Arduino[{{id}}].btnPinValueSetterMouseDown(this);" 
 					onmouseup="emuino.getDevices().Arduino[{{id}}].btnPinValueSetterMouseUp(this);">
 			</span>
-			<span class="pin-swch"><input type="checkbox"></span>
+			<span class="pin-switch">
+				<input type="checkbox" name="switch" checked="checked">
+				<input type="hidden" name="vold" value="{{ pins[pin]['value'] }}">
+			</span>
 		</td>
 	</tr>
 	{{#}}

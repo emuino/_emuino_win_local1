@@ -1,3 +1,3 @@
-input[name="vset"] {
+input[type="number"] {
 	width: 50px;
 }

@@ -294,17 +294,21 @@ emuino.exts.Arduino = function($elem, id, args) {
 	};
 	
 	this.btnPinValueSetterMouseDown = function(e) {
-		console.log(e);
 		$pin = $(e).closest('.arduino-pin');
-		$pin.find('input[name=\"vold\"]').val($pin.find('input[name=\"vset\"]').val());
-		emuino.send('sendPinValue', [id, $pin.attr('data-pin'), $pin.find('input[name=\"vset\"]').val()]);
+		$switch = $pin.find('input[name="switch"]');
+		if(!$switch.is(':checked')) {
+			$pin.find('input[name="vold"]').val(parseInt($pin.find('.pin-value').html()));
+		}
+		emuino.send('sendPinValue', [id, $pin.attr('data-pin'), $pin.find('input[name="vset"]').val()]);
 	};
 	
 	this.btnPinValueSetterMouseUp = function(e) {
-		console.log(e);
+		$pin = $(e).closest('.arduino-pin');
+		$switch = $pin.find('input[name="switch"]');
+		if(!$switch.is(':checked')) {
+			emuino.send('sendPinValue', [id, $pin.attr('data-pin'), $pin.find('input[name="vold"]').val()]);
+		}
 	};
-	
-	console.log('init an arduino - $elem, id, args: ', $elem, id, args);
 	
 	loadStyle('exts/Arduino/arduino.css');
 	
@@ -438,7 +442,6 @@ emuino.init = function() {
 				throw "device already exists: "+name+" giud="+id;
 			}
 			devices[name][id] = device;
-			console.log(devices);
 		});
 	};
 	

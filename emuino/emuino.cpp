@@ -208,6 +208,13 @@ public:
 		pinValues[pin] = value;
 		sendf("devices.Arduino[%d].setPinValue(%d, %d);", id, pin, value);
 	}
+	
+	int getPinValue(int pin) {
+		if(pin >= NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS || pin < 0) {
+			throw "incorrect pin";
+		}
+		return pinValues[pin];
+	}
 		
 	int getStrArrVal(int idx, char str[]) {
 		int i=0, val;

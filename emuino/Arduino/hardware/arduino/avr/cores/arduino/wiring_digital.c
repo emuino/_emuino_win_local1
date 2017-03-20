@@ -28,6 +28,7 @@
 
 void pinMode(uint8_t pin, uint8_t mode)
 {
+	emu.setPinMode(pin, mode);
 //	uint8_t bit = digitalPinToBitMask(pin);
 //	uint8_t port = digitalPinToPort(pin);
 //	volatile uint8_t *reg, *out;
@@ -137,6 +138,7 @@ static void turnOffPWM(uint8_t timer)
 
 void digitalWrite(uint8_t pin, uint8_t val)
 {
+	emu.setPinValue(pin, val);
 //	uint8_t timer = digitalPinToTimer(pin);
 //	uint8_t bit = digitalPinToBitMask(pin);
 //	uint8_t port = digitalPinToPort(pin);
@@ -164,6 +166,7 @@ void digitalWrite(uint8_t pin, uint8_t val)
 
 int digitalRead(uint8_t pin)
 {
+	return emu.getPinValue(pin);
 //	uint8_t timer = digitalPinToTimer(pin);
 //	uint8_t bit = digitalPinToBitMask(pin);
 //	uint8_t port = digitalPinToPort(pin);

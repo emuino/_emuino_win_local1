@@ -207,24 +207,18 @@ public:
 	
 	void cliCmd(char* cmdStr) {
 		EmuinoPipe::cliCmd(cmdStr);
-		printf("dx1(%s)",cmdStr);
 		
 		// TODO parse cmd array here!! format: "cmd,id,arg0,arg1,arg..." todo check wssd project: do we need to take a \n to end of lines??
 		int id = getStrArrVal(1, cmdStr);
-		printf("dx2(%s)",cmdStr);
 		if(id != this->id) {
 			emuLogger.log("invalid client id (hmm.. may a client doesn't closed correctly?!')");
 		}
 		else {
-			printf("dx3(%s)",cmdStr);
 			int cmd = getStrArrVal(0, cmdStr);
-			printf("dx4(%s)",cmdStr);
 			switch(cmd) {
 				case 0: // setPinValue
 				{
-					printf("dx5(%s)",cmdStr);
 					int pin = getStrArrVal(2, cmdStr);
-					printf("dx6(%s)",cmdStr);
 					int value = getStrArrVal(3, cmdStr);
 					setPinValue(pin, value);
 					break;

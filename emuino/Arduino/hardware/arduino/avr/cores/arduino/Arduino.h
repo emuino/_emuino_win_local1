@@ -61,18 +61,10 @@ void yield(void);
 #define FALLING 2
 #define RISING 3
 
-#if defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
-  #define DEFAULT 0
-  #define EXTERNAL 1
-  #define INTERNAL1V1 2
-  #define INTERNAL INTERNAL1V1
-#elif defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-  #define DEFAULT 0
-  #define EXTERNAL 4
-  #define INTERNAL1V1 8
-  #define INTERNAL INTERNAL1V1
-  #define INTERNAL2V56 9
-  #define INTERNAL2V56_EXTCAP 13
+#if defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__) || defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+#define DEFAULT 0
+#define EXTERNAL 1
+#define INTERNAL 2
 #else  
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega1284__) || defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega644__) || defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__)
 #define INTERNAL1V1 2
@@ -115,7 +107,7 @@ void yield(void);
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
-#define _NOP() do { /* __asm__ volatile ("nop"); */} while (0)
+#define _NOP() do { __asm__ volatile ("nop"); } while (0)
 #endif
 
 typedef unsigned int word;
@@ -174,38 +166,13 @@ extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
 // 
 // These perform slightly better as macros compared to inline functions
 //
-
-//#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
-int digitalPinToPort(int P) { return pgm_read_byte( digital_pin_to_port_PGM[P] ); }
-
-//#define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
-int digitalPinToBitMask(int P) { return pgm_read_byte( digital_pin_to_bit_mask_PGM[P] ); }
-
+#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
+#define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
 //#define digitalPinToTimer(P) ( pgm_read_byte( digital_pin_to_timer_PGM + (P) ) )
-int digitalPinToTimer(int P) { return pgm_read_byte( digital_pin_to_timer_PGM[P] ); }
-
 #define analogInPinToBit(P) (P)
-
-//#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
-volatile uint8_t* portOutputRegister(int P) { 
-	// TODO ###
-	return NULL;
-	//volatile uint8_t ret = pgm_read_word( port_to_output_PGM[P]); return &ret; 
-}
-
-//#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
-volatile uint8_t* portInputRegister(int P) {
-	// TODO ###
-	return NULL;
-	//volatile uint8_t ret = pgm_read_word( port_to_input_PGM[P]); return &ret;
-}
-
-//#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
-volatile uint8_t* portModeRegister(int P) {
-	// TODO ###
-	return NULL;
-	//volatile uint8_t ret = pgm_read_word( port_to_mode_PGM[P]); return &ret;
-}
+#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
+#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
+#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
 
 #define NOT_A_PIN 0
 #define NOT_A_PORT 0
@@ -279,7 +246,6 @@ long map(long, long, long, long, long);
 
 #endif
 
-#include <avr/variants/standard/pins_arduino.h>
-// #include "pins_arduino.h"
+#include "pins_arduino.h"
 
 #endif

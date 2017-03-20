@@ -35,10 +35,10 @@ extern "C"{
 #endif
 
 #ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#define cbi(sfr, bit) //(_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
 #ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#define sbi(sfr, bit) //(_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
 uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, unsigned long maxloops);

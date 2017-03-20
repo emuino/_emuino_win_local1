@@ -78,7 +78,7 @@
 */
 #define sei()
 #else  /* !DOXYGEN */
-# define sei()  /* __asm__ __volatile__ ("sei" ::: "memory")*/
+//# define sei()  __asm__ __volatile__ ("sei" ::: "memory")
 #endif /* DOXYGEN */
 
 #if defined(__DOXYGEN__)
@@ -96,7 +96,7 @@
 */
 #define cli()
 #else  /* !DOXYGEN */
-# define cli()  /* __asm__ __volatile__ ("cli" ::: "memory")*/
+# define cli()  __asm__ __volatile__ ("cli" ::: "memory")
 #endif /* DOXYGEN */
 
 
@@ -131,15 +131,15 @@
 #  define __INTR_ATTRS used
 #endif
 
-#ifdef __cplusplus
-#  define ISR(vector, ...)            \
-    extern "C" void vector (void) __attribute__ ((__INTR_ATTRS)) __VA_ARGS__; \
-    void vector (void)
-#else
-#  define ISR(vector, ...)            \
-    void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
-    void vector (void)
-#endif
+//#ifdef __cplusplus
+//#  define ISR(vector, ...)            \
+//    extern "C" void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
+//    void vector (void)
+//#else
+//#  define ISR(vector, ...)            \
+//    void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
+//    void vector (void)
+//#endif
 
 #endif /* DOXYGEN */
 
@@ -183,11 +183,11 @@
 #ifdef __cplusplus
 #  define EMPTY_INTERRUPT(vector)                \
     extern "C" void vector(void) __attribute__ ((signal,naked,__INTR_ATTRS));    \
-    void vector (void) {  /* __asm__ __volatile__ ("reti" ::);*/ }
+    void vector (void) {  __asm__ __volatile__ ("reti" ::); }
 #else
 #  define EMPTY_INTERRUPT(vector)                \
     void vector (void) __attribute__ ((signal,naked,__INTR_ATTRS));    \
-    void vector (void) { /* __asm__ __volatile__ ("reti" ::);*/ }
+    void vector (void) { __asm__ __volatile__ ("reti" ::); }
 #endif
 
 #endif /* DOXYGEN */
@@ -261,7 +261,7 @@
 */
 #  define reti()
 #else  /* !DOXYGEN */
-#  define reti()  /* __asm__ __volatile__ ("reti" ::)*/
+#  define reti()  __asm__ __volatile__ ("reti" ::)
 #endif /* DOXYGEN */
 
 #if defined(__DOXYGEN__)

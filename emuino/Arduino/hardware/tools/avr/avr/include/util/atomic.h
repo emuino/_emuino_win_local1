@@ -54,21 +54,21 @@ static __inline__ uint8_t __iCliRetVal(void)
 static __inline__ void __iSeiParam(const uint8_t *__s)
 {
     sei();
-    /* __asm__ volatile ("" ::: "memory");*/
+    __asm__ volatile ("" ::: "memory");
     (void)__s;
 }
 
 static __inline__ void __iCliParam(const uint8_t *__s)
 {
     cli();
-    /* __asm__ volatile ("" ::: "memory");*/
+    __asm__ volatile ("" ::: "memory");
     (void)__s;
 }
 
 static __inline__ void __iRestore(const  uint8_t *__s)
 {
     SREG = *__s;
-    /* __asm__ volatile ("" ::: "memory");*/
+    __asm__ volatile ("" ::: "memory");
 }
 #endif	/* !__DOXYGEN__ */
 

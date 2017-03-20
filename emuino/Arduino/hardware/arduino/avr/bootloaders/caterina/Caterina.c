@@ -87,7 +87,7 @@ void StartSketch(void)
 	RX_LED_OFF();
 
 	/* jump to beginning of application space */
-	/* __asm__ volatile("jmp 0x0000");*/
+	__asm__ volatile("jmp 0x0000");
 }
 
 /*	Breathing animation on L LED indicates bootloader is running */

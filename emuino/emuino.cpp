@@ -3,8 +3,18 @@
 #include <conio.h>
 #include <stdarg.h>
 #include <time.h>
+#include <math.h>
 
 #define __EMU__
+
+#define __volatile__
+#define volatile
+#define __asm__ __emuasm__
+void __emuasm__(const char* asmcode, ...) {
+	
+}
+#define sei()
+#define PROGMEM
 
 // TODO: add it to the wiki
 #define SKETCH "sketch/sketch.ino"
@@ -14,14 +24,30 @@
 // todo measure the CPU speed or just rewrite the delay.h, interrupt.h etc.. tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
 #define F_CPU 1000000UL
 
+
+
 #include <avr/variants/standard/pins_arduino.h>
+#undef _AVR_IOXXX_H_
+
+#undef PORTA
+#undef PORTB
+#undef PORTC
+#undef PORTD
+#undef PORTE
+#undef PORTF
+#undef GPIOR0
+#undef GPIOR1
+#undef GPIOR2
+#undef RAMPZ
+#undef _VECTORS_SIZE
+#undef TWIE
+
 #include <avr/cores/arduino/Arduino.h>
 
 // TODO change it if you need, Im not realy sure but I think it's related to Arduino device type
 #include <avr/iocanxx.h>
 
 #include <avr/cores/arduino/wiring.c>
-
 
 class EmuinoFileHandler {
 public:

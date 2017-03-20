@@ -80,12 +80,12 @@ static __inline__ void _delay_loop_2(uint16_t __count) __attribute__((__always_i
 void
 _delay_loop_1(uint8_t __count)
 {
-	__asm__ volatile (
-		"1: dec %0" "\n\t"
-		"brne 1b"
-		: "=r" (__count)
-		: "0" (__count)
-	);
+//	__asm__ volatile (
+//		"1: dec %0" "\n\t"
+//		"brne 1b"
+//		: "=r" (__count)
+//		: "0" (__count)
+//	);
 }
 
 /** \ingroup util_delay_basic
@@ -102,12 +102,12 @@ _delay_loop_1(uint8_t __count)
 void
 _delay_loop_2(uint16_t __count)
 {
-	__asm__ volatile (
-		"1: sbiw %0,1" "\n\t"
-		"brne 1b"
-		: "=w" (__count)
-		: "0" (__count)
-	);
+//	__asm__ volatile (
+//		"1: sbiw %0,1" "\n\t"
+//		"brne 1b"
+//		: "=w" (__count)
+//		: "0" (__count)
+//	);
 }
 
 #endif /* _UTIL_DELAY_BASIC_H_ */

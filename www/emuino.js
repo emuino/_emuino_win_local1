@@ -106,7 +106,8 @@ var	tpl = {
 
 
 var	loadStyle = function(url, cb) {
-	var found = false;
+	if(typeof cb === 'undefined' || !cb) cb = function(){}; // todo
+	var found = false;	
 	$('link').each(function(i,e){
 		if(!found && $(e).attr('href') == url) {
 			found = true;
@@ -119,6 +120,7 @@ var	loadStyle = function(url, cb) {
 };
 
 var	loadScript = function(url, cb) {
+	if(typeof cb === 'undefined' || !cb) cb = function(){};
 	var found = false;
 	$('script').each(function(i,e){
 		if(!found && $(e).attr('src') == url) {
@@ -127,7 +129,9 @@ var	loadScript = function(url, cb) {
 		}
 	});
 	if(!found) {
-		$('head').append('<script src="'+url+'"></script>');
+		$('head').append('<script src="'+url+'" type="text/javascript" charset="utf-8" onload="'+cb+'"></script>');
+	} else {
+		cb();
 	}
 };
 
@@ -317,6 +321,150 @@ emuino.exts.Arduino = function($elem, id, args) {
 	
 };
 
+
+emuino.exts.SketchEditor = function($elem, id, args) {
+	
+	// todo.. I think it should be removed
+	//var status = function(msg) {
+	//	$elem.find('.status').html(msg);
+	//};
+	
+	$elem.html('a Sketch Editor loading..');
+	
+	loadStyle('exts/SketchEditor/editor.css');
+	
+	var filesaved = false;
+	var filename = "";
+	var editor;
+
+	
+	var setFileName = function(fn) {
+		filename = fn;
+		$elem.find('.fname').html(fn);
+	};
+
+	var setFileSaved = function(saved) {
+		filesaved = saved;		
+		$elem.find('.saved').html(saved ? '' : '*');
+	};
+	
+	
+	var saveSketch = function(fn) {
+		preloader.on('Save..');
+		$.post('savesketch.php?f='+fn, {data: editor.getSession().getValue()}, function(resp){
+			preloader.off();
+			if(resp != 'OK') {
+				alert(resp);	
+			}
+			else {
+				setFileName(fn);
+				setFileSaved(true);
+			}
+		});
+	};
+	
+	var saveAsSketch = function() {
+		var _this = this;
+		dialog('Save as..', 'exts/SketchEditor/saveas.tpl', {}, {
+			buttons: {
+				Save: function(){
+					var fn = $('input[name="sketch"]').val();
+					saveSketch(fn);
+					$(_this).dialog('close');
+				}
+			}
+		});
+	};
+	
+	tpl.parseUrl('exts/SketchEditor/editor.tpl', {
+		'id': id,
+	}, function(html){
+		$elem.html(html);
+		
+		editor = ace.edit("editor-"+id);
+		editor.$blockScrolling = Infinity
+		editor.setTheme("ace/theme/monokai");
+		editor.getSession().setMode("ace/mode/c_cpp");
+		editor.setAutoScrollEditorIntoView(true);
+		editor.getSession().on('change', function(e) {
+			setFileSaved(false);
+		});
+		editor.commands.addCommand({
+			name: 'save',
+			bindKey: {win: "Ctrl-S", "mac": "Cmd-S"},
+			exec: function(editor) {
+				var fn = $elem.find('.fname').html();
+				if(fn) {
+					saveSketch(fn);
+				}
+				else {
+					saveAsSketch();
+				}
+			}
+		});
+		
+		//status('');
+		
+		// ace editor scroll and positioning fix
+		var aceposfix = function() {
+			$('.dnd-contents').each(function(){
+			  $(this).css('height', $(this).parent().height() - 38);
+			});			
+			editor.resize();
+		};
+		
+		$elem.closest('.dnd-box').css('min-width', '320px');
+		$elem.closest('.dnd-box').css('min-height', '240px');
+		$elem.closest('.dnd-box').mouseup(function(){
+			aceposfix();
+		});	
+		aceposfix();
+		
+	});
+	
+	this.btnNewClick = function() {
+		if(confirm('All change will be lost, are you sure?')) {
+			setFileName("");
+			setFileSaved(false);
+			editor.setValue("");
+		}
+	};
+	
+	this.btnOpenClick = function() {
+		dialog('Open..', 'exts/SketchEditor/open.tpl', {}, {
+			buttons: {
+				Load: function(e) {
+					var _this = this;
+					var sfname = $('input[name="sketch"]').val();
+					preloader.get('getsketchexists.php?f='+sfname, function(resp){
+						if(resp!='OK') {
+							alert(resp);
+						} else {
+							preloader.get('getsketch.php?f='+sfname, function(resp){
+								setFileName(sfname);
+								setFileSaved(true);								
+								editor.setValue(resp, -1);
+								$(_this).dialog('close');
+							}, 'Loading sketch file..');
+						}
+					}, 'Check sketch file..');
+				}
+			}
+		});
+	};
+
+	
+	this.btnSaveClick = function(e) {
+		var fn = $(e).closest('.sketch').find('.fname').html();
+		saveSketch(fn);
+	};
+
+	this.btnSaveAsClick = function() {
+		saveAsSketch();
+	};
+	
+};
+
 // TODO: add more extension here or load dynamically
 
 
@@ -352,7 +500,7 @@ emuino.init = function() {
 			msgbox('Refres...', 'Connection refresh soon.. if the page doesn\'t refresh automatically please refresh it...', {buttons:{}});
 			setTimeout(function(){
 				document.location.href = document.location.href;
-			}, 8000);
+			}, 4000);
 		}, 'Lost connection to WebSocket server, please wait to reconnect..<br>WSD Restart: stop..');
 	};
 	
@@ -401,13 +549,15 @@ emuino.init = function() {
 	var dndCounter = 0;
 	var dndZIndexMax = 0;
 	this.make = function(name, id, args) {
-		if(!args) args = {};
+		if(typeof id === 'undefined' || !id) id = parseInt(Math.random()*10000000);
+		if(typeof args === 'undefined' || !args) args = {};
 		dndCounter++;
 		var dndNextID = 'dnd-'+name+'-'+id;
 		if($('#'+dndNextID).length>0) {
 			throw "DOM element already exists: #"+name+"-"+id;
 		}
 		
+		// todo add close button to dnd-boxes header
 		tpl.parseUrl('tpls/dnd-box.tpl', {
 			'dndNextID' : dndNextID,
 			'name': name,
@@ -422,10 +572,13 @@ emuino.init = function() {
 							$(e).css('top', '0px');
 						}
 					});
-				}
+				},
+				grid: [10,10],
 			});
 			$('#'+dndNextID+' .dnd-title').disableSelection();
-			$('#'+dndNextID).resizable();
+			$('#'+dndNextID).resizable({
+				grid: 10,
+			});
 			$('#'+dndNextID).css({
 				top: ((dndCounter%10)*30) + 'px',
 				left: ((dndCounter%10)*30) + 'px',

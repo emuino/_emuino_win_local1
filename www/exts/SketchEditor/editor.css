@@ -1,0 +1,70 @@
+.sketch {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 100%;
+}
+
+.sketch .menu {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	float: none;
+	width: 100%;
+	height: 22px;
+}
+
+.sketch .fname,
+.sketch .saved {
+	float: right;
+	margin: 3px 10px 3px 0;
+}
+
+.sketch .status {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	display: block;
+	float: none;
+	width: 100%;
+	height: 22px;
+}
+
+
+.sketch .frame {
+	position: relative;
+	top: 22px;
+	height: calc(100% - 44px);
+	left: 0;
+	right: 0;
+}
+
+.sketch .editor {
+	position: absolute;
+	top:0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+/*
+::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 100, 0.8);
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(100, 100, 100, 0.4);
+}
+*/

@@ -184,6 +184,8 @@ label {
 	background-color: transparent;
 	color: black;
 	padding: 5px 10px;
+	position: relative;
+	height: 100%;
 }
 
 

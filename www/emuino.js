@@ -154,9 +154,8 @@ var dialog = function(title, tplUrl, tplData, settings) {
 			}
 		}
 	}
-	if(typeof settings.title === 'undefined') {
-		settings.title = title;
-	}
+	if(typeof settings.title === 'undefined') settings.title = title;
+	if(typeof settings.modal === 'undefined') settings.modal = true;
 	if(!$('#msgbox').length) {
 		$('body').append('<div id="msgbox" style="display: none;"></div>');
 	}

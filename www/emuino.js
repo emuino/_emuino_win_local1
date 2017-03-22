@@ -670,7 +670,6 @@ emuino.init = function() {
 			$('#dnd-'+name+'-'+id).remove();
 			devices[name][id] = null;
 			delete devices[name][id];
-			console.log(devices);
 		};
 		
 		var waiting = function() {

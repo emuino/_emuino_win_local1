@@ -4,8 +4,8 @@ var ajax = {
 		return $script.lenght > 0 ? $script.attr('src').split('emuino.js?_nocache=')[1] : null;
 	},
 	getUrl: function(url) {
-		var nocacheArg = '_ajax_nocache=';
 		if(ajax.getNoCache() && url.split(nocacheArg).lenght>1) {
+			var nocacheArg = '_ajax_nocache=';
 			if(url.split('?').length>1) {
 				url += '&';
 			} else {
@@ -87,16 +87,24 @@ var	tpl = {
 	cacheUrl: {},
 	parseUrl: function(url, data, callback) {
 		url = ajax.getUrl(url);
-		if(typeof this.cacheUrl[url] == 'undefined') {
+		var cacheNeed = url!=url;
+		if(url==url || typeof this.cacheUrl[url] === 'undefined') {
 			var _this = this;
 			var _url = url;
 			var _data = data;
 			var _callback = callback;
+			//preloader.on('loading..');
 			ajax.get(url, function(resp){
-				_this.cacheUrl[_url] = resp;
-				_this.parseUrl(_url, _data, function(results){
-					_callback(results)
-				});
+				//preloader.off();
+				if(cacheNeed) {
+					_this.cacheUrl[_url] = resp;
+					_this.parseUrl(_url, _data, function(results){
+						_callback(results)
+					});
+				}
+				else {
+					_callback(_this.parseStr(resp, _data));
+				}
 			});
 		} else {
 			callback(this.parseStr(this.cacheUrl[url], data));
@@ -137,7 +145,7 @@ var	loadScript = function(url, cb) {
 
 
 var dialog = function(title, tplUrl, tplData, settings) {
-	if(typeof settings == 'undefined' || !settings) {
+	if(typeof settings === 'undefined' || !settings) {
 		settings = {
 			buttons: {
 				Close: function() {
@@ -145,6 +153,9 @@ var dialog = function(title, tplUrl, tplData, settings) {
 				}
 			}
 		}
+	}
+	if(typeof settings.title === 'undefined') {
+		settings.title = title;
 	}
 	if(!$('#msgbox').length) {
 		$('body').append('<div id="msgbox" style="display: none;"></div>');
@@ -155,7 +166,11 @@ var dialog = function(title, tplUrl, tplData, settings) {
 		$('#msgbox select').selectmenu();
 		$('#msgbox .autocomplete').each(function(i,e){
 			$(e).autocomplete({
+				minLength: 0,
 				source: $(e).attr('data-source')
+			}).focus(function(){     
+				//Use the below line instead of triggering keydown
+				 $(this).autocomplete("search");
 			});
 		});
 		$('#msgbox').dialog(settings);
@@ -184,8 +199,12 @@ var msgbox = function(title, msg, settings) {
 	$('#msgbox select').selectmenu();
 	$('#msgbox .autocomplete').each(function(i,e){
 		$(e).autocomplete({
+			minLength: 0,
 			source: $(e).attr('data-source')
-		});
+		}).focus(function(){     
+            //Use the below line instead of triggering keydown
+             $(this).autocomplete("search");
+        });;
 	});
 	$('#msgbox').dialog(settings);
 };
@@ -342,6 +361,11 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 		filename = fn;
 		$elem.find('.fname').html(fn);
 	};
+	
+	
+	var getFileName = function() {
+		return filename;
+	};
 
 	var setFileSaved = function(saved) {
 		filesaved = saved;		
@@ -349,7 +373,8 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 	};
 	
 	
-	var saveSketch = function(fn) {
+	var saveSketch = function(fn, cb) {
+		if(typeof cb === 'undefined') cb = false;
 		preloader.on('Save..');
 		$.post('savesketch.php?f='+fn, {data: editor.getSession().getValue()}, function(resp){
 			preloader.off();
@@ -359,22 +384,89 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 			else {
 				setFileName(fn);
 				setFileSaved(true);
+				if(cb) {
+					cb();
+				}
 			}
 		});
 	};
 	
-	var saveAsSketch = function() {
+	var saveAsSketch = function(cb) {
 		var _this = this;
 		dialog('Save as..', 'exts/SketchEditor/saveas.tpl', {}, {
 			buttons: {
 				Save: function(){
 					var fn = $('input[name="sketch"]').val();
-					saveSketch(fn);
-					$(_this).dialog('close');
+					saveSketch(fn, function(){
+						cb(fn);
+					});
+					$(this).dialog('close');
 				}
 			}
 		});
 	};
+	
+	var newSketch = function() {
+		setFileName("");
+		setFileSaved(false);
+		editor.setValue("void setup() {\n\n}\n\nvoid loop() {\n\n}\n", -1);
+	};
+	
+	// user events
+	
+	this.btnNewClick = function() {
+		if(confirm('All change will be lost, are you sure?')) {
+			newSketch();
+		}
+	};
+	
+	this.btnOpenClick = function() {
+		dialog('Open..', 'exts/SketchEditor/open.tpl', {}, {
+			buttons: {
+				Load: function(e) {
+					var _this = this;
+					var sfname = $('input[name="sketch"]').val();
+					preloader.get('getsketchexists.php?f='+sfname, function(resp){
+						if(resp!='OK') {
+							alert(resp);
+						} else {
+							preloader.get('getsketch.php?f='+sfname, function(resp){
+								setFileName(sfname);
+								setFileSaved(true);								
+								editor.setValue(resp, -1);
+								$(_this).dialog('close');
+							}, 'Loading sketch file..');
+						}
+					}, 'Check sketch file..');
+				}
+			}
+		});
+	};
+
+	
+	this.btnSaveClick = function(e) {
+		var fn = getFileName();
+		saveSketch(fn);
+	};
+
+	this.btnSaveAsClick = function() {
+		saveAsSketch();
+	};
+	
+	this.btnRunClick = function() {
+		var sketchf = getFileName();
+		if(sketchf) {
+			saveSketch(sketchf, function(){
+				emuino.start(sketchf);
+			});
+		} else {
+			saveAsSketch(function(fn){
+				emuino.start(fn);
+			});
+		}
+	};
+
+	// start.. 
 	
 	tpl.parseUrl('exts/SketchEditor/editor.tpl', {
 		'id': id,
@@ -413,55 +505,17 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 			editor.resize();
 		};
 		
-		$elem.closest('.dnd-box').css('min-width', '320px');
-		$elem.closest('.dnd-box').css('min-height', '240px');
+		$elem.closest('.dnd-box').css('width', '500px');
+		$elem.closest('.dnd-box').css('height', '350px');
 		$elem.closest('.dnd-box').mouseup(function(){
 			aceposfix();
 		});	
 		aceposfix();
+
+		// start point
+		newSketch();
 		
 	});
-	
-	this.btnNewClick = function() {
-		if(confirm('All change will be lost, are you sure?')) {
-			setFileName("");
-			setFileSaved(false);
-			editor.setValue("");
-		}
-	};
-	
-	this.btnOpenClick = function() {
-		dialog('Open..', 'exts/SketchEditor/open.tpl', {}, {
-			buttons: {
-				Load: function(e) {
-					var _this = this;
-					var sfname = $('input[name="sketch"]').val();
-					preloader.get('getsketchexists.php?f='+sfname, function(resp){
-						if(resp!='OK') {
-							alert(resp);
-						} else {
-							preloader.get('getsketch.php?f='+sfname, function(resp){
-								setFileName(sfname);
-								setFileSaved(true);								
-								editor.setValue(resp, -1);
-								$(_this).dialog('close');
-							}, 'Loading sketch file..');
-						}
-					}, 'Check sketch file..');
-				}
-			}
-		});
-	};
-
-	
-	this.btnSaveClick = function(e) {
-		var fn = $(e).closest('.sketch').find('.fname').html();
-		saveSketch(fn);
-	};
-
-	this.btnSaveAsClick = function() {
-		saveAsSketch();
-	};
 	
 };
 
@@ -515,7 +569,7 @@ emuino.init = function() {
 				handleWsdCmd(cmd);
 			}, 1000);
 		}
-	}
+	};
 	
 	ws.onmessage = function(event) {		
 		if(event.data) {
@@ -527,8 +581,8 @@ emuino.init = function() {
 	ws.onopen = function(event) {
 		preloader.off();
 		emuino.statmsg("wsd connected.");
-		emuino.start();
-	}
+		//emuino.start();
+	};
 	
 	
 	window.addEventListener("beforeunload", function (e) {	
@@ -599,17 +653,53 @@ emuino.init = function() {
 	};
 	
 	this.remove = function(name, id) {
-		$('#dnd-'+name+'-'+id).remove();
-		devices[name][id] = null;
-		delete devices[name][id];
-		console.log(devices);
+		var wait = true;
+		
+		// it has a close handler?
+		if(typeof devices[name][id].onClose !== 'undefined') {
+			// send close request
+			devices[name][id].onClose(function(){
+				wait = false;
+			});			
+		}
+		else {
+			wait = false;
+		}
+				
+		var removeDOM = function() {
+			$('#dnd-'+name+'-'+id).remove();
+			devices[name][id] = null;
+			delete devices[name][id];
+			console.log(devices);
+		};
+		
+		var waiting = function() {
+			if(!wait) {
+				removeDOM();
+			}
+			else {
+				setTimeout(function(){
+					if(!confirm("Still waiting but "+name+"#"+id+" task doesn't response for close request. Force it to close?")) {
+						wait = false;
+					}
+					waiting();
+				}, 8000);
+			}
+		};
+		
+		waiting();
+		
+		
 	};
 	
 
 
 	
-	this.start = function() {
-		dialog('Start', 'tpls/start.tpl', {}, {
+	this.start = function(sketchf) {
+		if(typeof sketchf === 'undefined' || sketchf === null) sketchf = 'sketch.ino'; 
+		dialog('Start', 'tpls/start.tpl', {
+			'sketchf': sketchf
+		}, {
 			modal: true,
 			buttons: {
 				'Rebuild and Run': function() {
@@ -631,6 +721,7 @@ emuino.init = function() {
 		preloader.get('create.php?fname='+fname, null, 'Create sketch file: '+fname);
 	};
 	
+	// TODO remove create button!!! !@#
 	this.loadArduino = function(device, sketchf) {
 		preloader.get('repair.php?device='+device+'&fname='+sketchf, function(){
 			//var elemsAtStart = $('.dnd-container *').length;

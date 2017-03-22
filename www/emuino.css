@@ -176,6 +176,14 @@ label {
 	background: linear-gradient(to right, #00989d 0%, #149c9e 51%, #2bb1b3 68%, #25b3b8 84%, #25b3b8 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00989d', endColorstr='#25b3b8', GradientType=1 );
 }
+.dnd-title .btns {
+	position: absolute;
+    top: 0;
+    right: 0;
+}
+.dnd-title .btns button {
+	margin: 2px;
+}
 
 .dnd-contents {
 	max-width: 100%;

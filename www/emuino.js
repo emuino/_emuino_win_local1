@@ -378,7 +378,9 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 		$.post('savesketch.php?f='+fn, {data: editor.getSession().getValue()}, function(resp){
 			preloader.off();
 			if(resp != 'OK') {
-				alert(resp);	
+				saveAsSketch(function(){
+					cb();
+				});	
 			}
 			else {
 				setFileName(fn);
@@ -410,6 +412,24 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 		setFileSaved(false);
 		editor.setValue("void setup() {\n\n}\n\nvoid loop() {\n\n}\n", -1);
 	};
+
+	// ui event handlers
+
+	this.onClose = function(cb) {		
+		if(!filesaved) {
+			if(confirm("File is not saved. Do you want to save it now?")) {
+				saveSketch(getFileName(), function(){
+					cb();
+				});
+			}
+			else {
+				cb();
+			}
+		}
+		else {
+			cb();
+		}
+	}
 	
 	// user events
 	
@@ -677,11 +697,14 @@ emuino.init = function() {
 			}
 			else {
 				setTimeout(function(){
-					if(!confirm("Still waiting but "+name+"#"+id+" task doesn't response for close request. Force it to close?")) {
-						wait = false;
+					// is still in the dom?
+					if($('#dnd-'+name+'-'+id).length>0 && wait) {
+						if(confirm("Still waiting but "+name+"#"+id+" task doesn't response for close request. Force it to close?")) {
+							wait = false;
+						}
+						waiting();
 					}
-					waiting();
-				}, 8000);
+				}, 30000);
 			}
 		};
 		

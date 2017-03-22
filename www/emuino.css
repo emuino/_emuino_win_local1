@@ -211,3 +211,8 @@ label {
 	unicode-bidi: embed;
     /* white-space: pre; */
 }
+
+
+/* ui dialog z-index fix */
+.ui-dialog { z-index: 1000 !important ;}
+.ui-front { z-index: 1000 !important; }

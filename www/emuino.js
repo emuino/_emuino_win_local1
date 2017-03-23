@@ -239,10 +239,11 @@ var preloader = {
 			$('#preloader').hide();
 		}
 	},
-	get: function(url, cb, msg) {
+	get: function(url, cb, msg, nocache) {
+		if(typeof nocache === 'undefined') nocache = false;
 		emuino.statmsg('loading url: '+url);
 		preloader.on(msg);
-		ajax.get(url, function(resp){
+		ajax.get(url+(nocache ? (url.split('?').lenght>1 ? '&' : '?') + 't='+Math.random() : ''), function(resp){
 			emuino.statmsg('OK');
 			preloader.off();
 			if(cb) {
@@ -251,6 +252,9 @@ var preloader = {
 				alert(resp);
 			}
 		});
+	},
+	getNoCache: function(url, cb, msg, nocache) {
+		preloader.get(url, cb, msg, true);
 	},
 };
 
@@ -336,7 +340,13 @@ emuino.exts.Arduino = function($elem, id, args) {
 	
 	$elem.html('an Arduino loading..');
 	
+	// event handlers
 	
+	this.onClose = function(cb) {
+		// TODO close server side also!
+		alert('TODO: close emu server side also!');
+		cb();
+	};
 };
 
 
@@ -536,6 +546,19 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 		
 	});
 	
+};
+
+
+emuino.exts.CompileLog = function($elem, id, args) {
+	$elem.html('making compile log..');
+	preloader.getNoCache('compile.log', function(log){
+		if(log) {
+			$elem.html('<pre>'+log+'</pre>');
+		}
+		else {
+			emuino.remove('CompileLog', id);
+		}
+	});
 };
 
 // TODO: add more extension here or load dynamically
@@ -742,23 +765,25 @@ emuino.init = function() {
 		preloader.get('create.php?fname='+fname, null, 'Create sketch file: '+fname);
 	};
 	
-	// TODO remove create button!!! !@#
 	this.loadArduino = function(device, sketchf) {
-		preloader.get('repair.php?device='+device+'&fname='+sketchf, function(){
-			//var elemsAtStart = $('.dnd-container *').length;
-			//msgbox('Rebuild and run', 'Please wait..');
-			preloader.get('runbat.php?f=rebuild.bat', function(){
-				preloader.get('run.php'/*'runbat.php?f=run.bat'*/, function(){ }, 'Run virtual device..');
-			}, 'Rebuild source files and make virtual device..');
-			//window.open('download.php?fname=rebuild_run.bat');
-			// var inter = setInterval(function(){
-				// if(elemsAtStart != $('.dnd-container *').length) {
-					// clearInterval(inter);
-					// $('#msgbox').dialog('close');
-				// }
-			// }, 300);
-			// todo watch the file time...
-		}, 'Repair source files..');
+		preloader.get('runbat.php?f=compile.bat', function(){
+			emuino.make('CompileLog');
+			preloader.get('repair.php?device='+device+'&fname='+sketchf, function(){
+				//var elemsAtStart = $('.dnd-container *').length;
+				//msgbox('Rebuild and run', 'Please wait..');
+				preloader.get('runbat.php?f=rebuild.bat', function(){
+					preloader.get('run.php'/*'runbat.php?f=run.bat'*/, function(){ }, 'Run virtual device..');
+				}, 'Rebuild source files and make virtual device..');
+				//window.open('download.php?fname=rebuild_run.bat');
+				// var inter = setInterval(function(){
+					// if(elemsAtStart != $('.dnd-container *').length) {
+						// clearInterval(inter);
+						// $('#msgbox').dialog('close');
+					// }
+				// }, 300);
+				// todo watch the file time...
+			}, 'Repair source files..');
+		});
 		//alert('TODO: load Arduino (rebuild cpp source with sketch.ino) and run: '+deviceType+', '+sketchFileName);
 	};
 	

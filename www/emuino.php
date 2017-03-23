@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf8">
 <title>Emuino</title>
+<link rel="shortcut icon" type="image/png" href="favicon.png"/>
 <link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="emuino.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>

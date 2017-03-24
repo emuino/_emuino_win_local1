@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <math.h>
-
+// TODO: {dir /s/b Arduino\libraries\src}
 #define __EMU__
 
 #define __volatile__
@@ -16,7 +16,7 @@ void __emuasm__(const char* asmcode, ...) {
 #define sei()
 #define PROGMEM
 
-// TODO: add it to the wiki
+// TODO: add it to the wiki, Show this on browser client
 #define SKETCH "sketch/sketch.ino"
 
 // TODO: emulated Arduino device type definition

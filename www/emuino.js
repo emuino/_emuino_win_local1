@@ -558,6 +558,9 @@ emuino.exts.CompileLog = function($elem, id, args) {
 		else {
 			emuino.remove('CompileLog', id);
 		}
+		preloader.getNoCache('delcmplog.php',function(){
+			
+		});
 	});
 };
 
@@ -766,9 +769,10 @@ emuino.init = function() {
 	};
 	
 	this.loadArduino = function(device, sketchf) {
-		preloader.get('runbat.php?f=compile.bat', function(){
-			emuino.make('CompileLog');
-			preloader.get('repair.php?device='+device+'&fname='+sketchf, function(){
+		preloader.get('repair.php?device='+device+'&sketch='+sketchf, function(){
+			preloader.get('runbat.php?f=compile.bat', function(){
+				emuino.make('CompileLog');
+			
 				//var elemsAtStart = $('.dnd-container *').length;
 				//msgbox('Rebuild and run', 'Please wait..');
 				preloader.get('runbat.php?f=rebuild.bat', function(){

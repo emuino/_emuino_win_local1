@@ -5,48 +5,28 @@
 #include <time.h>
 #include <math.h>
 // TODO: {dir /s/b Arduino\libraries\src}
+
 #define __EMU__
 
-#define __volatile__
-#define volatile
-#define __asm__ __emuasm__
-void __emuasm__(const char* asmcode, ...) {
-	
-}
-#define sei()
-#define PROGMEM
-
 // TODO: add it to the wiki, Show this on browser client
-#define SKETCH "sketch/sketch.ino"
+#define SKETCH "sketch/SerialDisplay.ino"
 
 // TODO: emulated Arduino device type definition
-#define __AVR_ATxmega384D3__ //__DEVICE_TYPE__ - ************** DO NOT REMOVE THIS COMMENT! ITS NEED TO RE-PARSING THIS SOURCECODE !!! *****************
-// todo measure the CPU speed or just rewrite the delay.h, interrupt.h etc.. tipical F_CPU values e.g F_CPU=8000000 or F_CPU=1000000UL
-#define F_CPU 1000000UL
+#define __AVR_ATmega328P__ //__DEVICE_TYPE__ - ************** DO NOT REMOVE THIS COMMENT! ITS NEED TO RE-PARSING THIS SOURCECODE !!! *****************
+
+// TODO: able to user to change the variants and replace it before compile the sketch
+#include "emulibc/emu_fakedefs.h"
+#include "emulibc/Arduino.h"
+#include "emulibc/variants/standard/pins_arduino.h"
 
 
-
-#include <avr/variants/standard/pins_arduino.h>
-#undef _AVR_IOXXX_H_
-
-#undef PORTA
-#undef PORTB
-#undef PORTC
-#undef PORTD
-#undef PORTE
-#undef PORTF
-#undef GPIOR0
-#undef GPIOR1
-#undef GPIOR2
-#undef RAMPZ
-#undef _VECTORS_SIZE
-#undef TWIE
-
-#include <avr/cores/arduino/Arduino.h>
+//#include <avr/cores/arduino/Arduino.h>
 
 // TODO change it if you need, Im not realy sure but I think it's related to Arduino device type
-#include <avr/iocanxx.h>
 
+//#include <avr/iocanxx.h>
+//#include <avr/iom328p.h>
+//#include <avr/io.h>
 
 class EmuinoFileHandler {
 public:
@@ -148,13 +128,13 @@ public:
 
 
 
-class Sketch {
-public:
+//class Sketch {
+//public:
+//
+//} sketch;
+
+
 #include SKETCH
-} sketch;
-
-
-
 
 
 class Emuino : public EmuinoPipe {
@@ -189,11 +169,11 @@ public:
 		sendf("emuino.make('Arduino', '%d', {});", id);
 		reset();
 		emuLogger.log("[emuino sketch]: setup..");
-		sketch.setup();
+		setup();
 		emuLogger.log("[emuino sketch]: loop start.. (press a key to stop)");
 		while(!kbhit()) {
 			read();
-			sketch.loop();
+			loop();
 		}
 		emuLogger.log("[EMUINO] halt");
 		getch();
@@ -308,8 +288,11 @@ public:
 } emu;
 
 
-#include <avr/cores/arduino/wiring.c>
-#include <avr/cores/arduino/wiring_digital.c>
+//#include <avr/cores/arduino/wiring.c>
+//#include <avr/cores/arduino/wiring_digital.c>
+
+#include "emulibc/wiring.c"
+#include "emulibc/wiring_digital.c"
 
 
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */

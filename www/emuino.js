@@ -93,9 +93,9 @@ var	tpl = {
 			var _url = url;
 			var _data = data;
 			var _callback = callback;
-			//preloader.on('loading..');
+			//emuino.preloader.on('loading..');
 			ajax.get(url, function(resp){
-				//preloader.off();
+				//emuino.preloader.off();
 				if(cacheNeed) {
 					_this.cacheUrl[_url] = resp;
 					_this.parseUrl(_url, _data, function(results){
@@ -166,7 +166,7 @@ var dialog = function(title, tplUrl, tplData, settings) {
 		$('#msgbox .autocomplete').each(function(i,e){
 			$(e).autocomplete({
 				minLength: 0,
-				source: $(e).attr('data-source')
+				source: emuino.preloader.getCallURL($(e).attr('data-source'), []),
 			}).focus(function(){     
 				//Use the below line instead of triggering keydown
 				 $(this).autocomplete("search");
@@ -209,54 +209,7 @@ var msgbox = function(title, msg, settings) {
 };
 
 
-var preloader = {
-	counter: 0,
-	msg: function(msg) {
-		if(preloader.counter<=0) {
-			throw "tried to show a preloader message but there is no any preloader open";
-		}
-		$('#preloader .stat').html(msg);
-	},
-	on: function(msg) {
-		if(!$('#preloader').length) {
-			$('body').append('<div id="preloader"><div class="stat"></div></div>');
-		}
-		$('#preloader').css('z-index', $('#msgbox').css('z-index') + 1);
-		$('#preloader').show();
-		preloader.counter++;
-		
-		if(typeof msg != 'undefined') {
-			preloader.msg(msg);
-		}
-	},
-	off: function() {
-		preloader.msg('');
-		preloader.counter--;
-		if(preloader.counter < 0) {
-			throw "tried to close a preloader but there is no more open..";
-		}
-		if(preloader.counter == 0) {
-			$('#preloader').hide();
-		}
-	},
-	get: function(url, cb, msg, nocache) {
-		if(typeof nocache === 'undefined') nocache = false;
-		emuino.statmsg('loading url: '+url);
-		preloader.on(msg);
-		ajax.get(url+(nocache ? (url.split('?').lenght>1 ? '&' : '?') + 't='+Math.random() : ''), function(resp){
-			emuino.statmsg('OK');
-			preloader.off();
-			if(cb) {
-				cb(resp);
-			} else if(resp) {
-				alert(resp);
-			}
-		});
-	},
-	getNoCache: function(url, cb, msg, nocache) {
-		preloader.get(url, cb, msg, true);
-	},
-};
+
 
 
 
@@ -265,6 +218,102 @@ var preloader = {
 var emuino = {
 	// device extensions
 	exts: {},
+	preloader: {
+		counter: 0,
+		msg: function(msg) {
+			if(emuino.preloader.counter<=0) {
+				throw "tried to show a preloader message but there is no any preloader open";
+			}
+			$('#preloader .stat').html(msg);
+		},
+		on: function(msg) {
+			if(!$('#preloader').length) {
+				$('body').append('<div id="preloader"><div class="stat"></div></div>');
+			}
+			$('#preloader').css('z-index', $('#msgbox').css('z-index') + 1);
+			$('#preloader').show();
+			emuino.preloader.counter++;
+			
+			if(typeof msg != 'undefined') {
+				emuino.preloader.msg(msg);
+			}
+		},
+		off: function() {
+			emuino.preloader.msg('');
+			emuino.preloader.counter--;
+			if(emuino.preloader.counter < 0) {
+				throw "tried to close a preloader but there is no more open..";
+			}
+			if(emuino.preloader.counter == 0) {
+				$('#preloader').hide();
+			}
+		},
+		get: function(url, cb, msg, nocache) {
+			if(typeof nocache === 'undefined') nocache = true;
+			if(typeof msg === 'undefined') msg = "Loading..";
+			emuino.statmsg('loading url: '+url);
+			emuino.preloader.on(msg);
+			ajax.get(url+(nocache ? (url.split('?').length>1 ? '&' : '?') + 't='+Math.random() : ''), function(resp){
+				emuino.statmsg(msg+' (OK)');
+				emuino.preloader.off();
+				if(cb) {
+					cb(resp);
+				} else if(resp) {
+					console.error("no callback defined for response", resp);					
+					alert("response: "+resp+"\n see console for more info..");
+				}
+			});
+		},
+		//getNoCache: function(url, cb, msg, nocache) {
+		//	emuino.preloader.get(url, cb, msg, true);
+		//},
+		
+		getCallURL: function(func, args) {
+			if(typeof args === undefined) args = [''];
+			
+			var url = "emuino.php?func="+func;
+			for(k in args) {
+				url += "&args["+k+"]="+args[k];
+			}
+			
+			return url;
+		},
+		
+		getJSON: function(url, cb, msg) {
+			emuino.preloader.get(url, function(resp){
+				var obj;
+				var ok = false;
+				try {
+					obj = JSON.parse(resp);
+					ok = true;
+				} catch (e) {
+					console.error("invalid json: "+ resp, e);
+				}
+				if(ok) {
+					cb(obj);
+				}
+			}, msg);
+		},
+		
+		call: function(func, args, cb) {
+			var url = emuino.preloader.getCallURL(func, args);
+			
+			emuino.preloader.getJSON(url, function(resp){
+				if(resp.status=='E' && !cb) {
+					console.error(resp);
+					if(resp.message) {
+						alert(resp.message + "\nmore details in console");
+					}
+					else {
+						alert('Error: more details in console');
+					}
+				}
+				if(cb) {
+					cb(resp);
+				}
+			});
+		},
+	},
 };
 
 emuino.exts.Arduino = function($elem, id, args) {
@@ -384,9 +433,9 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 	
 	var saveSketch = function(fn, cb) {
 		if(typeof cb === 'undefined') cb = false;
-		preloader.on('Save..');
+		emuino.preloader.on('Save..');
 		$.post('savesketch.php?f='+fn, {data: editor.getSession().getValue()}, function(resp){
-			preloader.off();
+			emuino.preloader.off();
 			if(resp != 'OK') {
 				saveAsSketch(function(){
 					cb();
@@ -455,17 +504,13 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 				Load: function(e) {
 					var _this = this;
 					var sfname = $('input[name="sketch"]').val();
-					preloader.get('getsketchexists.php?f='+sfname, function(resp){
-						if(resp!='OK') {
-							alert(resp);
-						} else {
-							preloader.get('getsketch.php?f='+sfname, function(resp){
-								setFileName(sfname);
-								setFileSaved(true);								
-								editor.setValue(resp, -1);
-								$(_this).dialog('close');
-							}, 'Loading sketch file..');
-						}
+					emuino.preloader.call('getSketchExists', [sfname], function(resp){						
+						emuino.preloader.call('getSketchContents', [sfname], function(resp){
+							setFileName(sfname);
+							editor.setValue(resp.message, -1);
+							setFileSaved(true);
+							$(_this).dialog('close');
+						}, 'Loading sketch file..');
 					}, 'Check sketch file..');
 				}
 			}
@@ -483,15 +528,19 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 	};
 	
 	this.btnRunClick = function() {
-		var sketchf = getFileName();
-		if(sketchf) {
-			saveSketch(sketchf, function(){
-				emuino.start(sketchf);
-			});
+		var sketchf = getFileName();		
+		if(filesaved) {
+			emuino.start(sketchf);
 		} else {
-			saveAsSketch(function(fn){
-				emuino.start(fn);
-			});
+			if(sketchf) {
+				saveSketch(sketchf, function(){
+					emuino.start(sketchf);
+				});
+			} else {
+				saveAsSketch(function(fn){
+					emuino.start(fn);
+				});
+			}
 		}
 	};
 
@@ -548,20 +597,14 @@ emuino.exts.SketchEditor = function($elem, id, args) {
 	
 };
 
-
-emuino.exts.CompileLog = function($elem, id, args) {
-	$elem.html('making compile log..');
-	preloader.getNoCache('compile.log', function(log){
-		if(log) {
-			$elem.html('<pre>'+log+'</pre>');
-		}
-		else {
-			emuino.remove('CompileLog', id);
-		}
-		preloader.getNoCache('delcmplog.php',function(){
-			
-		});
+emuino.exts.MessageBox = function($elem, id, args) {
+	
+	loadStyle('exts/MessageBox/messagebox.css');
+	
+	tpl.parseUrl('exts/MessageBox/messagebox.tpl', args, function(output){
+		$elem.html(output);
 	});
+	
 };
 
 // TODO: add more extension here or load dynamically
@@ -571,6 +614,7 @@ emuino.exts.CompileLog = function($elem, id, args) {
 emuino.init = function() {
 	
 	
+
 	
 	this.statmsg = function(msg) {
 		$('.emu-stat').html(msg);
@@ -578,7 +622,7 @@ emuino.init = function() {
 	
 	emuino.statmsg('Emuino client started, initialize..');
 	
-	preloader.on('loading..');	
+	emuino.preloader.on('loading..');	
 	
 	var ws = new WebSocket('ws://127.0.0.1:8080/');
 	
@@ -589,9 +633,14 @@ emuino.init = function() {
 	
 	this.wsdRestart = function() {
 		emuino.statmsg('WSD Restart: stop..');
-		preloader.get('runbat.php?f=wsdstop.bat', function(){
+		
+		//emuino.preloader.get('runbat.php?f=wsdstop.bat', function(){		
+		emuino.preloader.call('doWsdStop', [], function(){
+			
 			emuino.statmsg('WSD Restart: start..');
-			preloader.get('runbat.php?f=wsdstart.bat', function(){
+			
+			//emuino.preloader.get('runbat.php?f=wsdstart.bat', function(){
+			emuino.preloader.call('doWsdStart', [], function(){
 							
 			}, 'Lost connection to WebSocket server, please wait to reconnect..<br>WSD Restart: start..');
 			emuino.statmsg('WSD Restart: waiting for reconnect..');
@@ -624,7 +673,7 @@ emuino.init = function() {
 	};
 	
 	ws.onopen = function(event) {
-		preloader.off();
+		emuino.preloader.off();
 		emuino.statmsg("wsd connected.");
 		//emuino.start();
 	};
@@ -765,34 +814,26 @@ emuino.init = function() {
 			alert('File extension should be a ".ino"!');
 			return;
 		}
-		preloader.get('create.php?fname='+fname, null, 'Create sketch file: '+fname);
+		emuino.preloader.get('create.php?fname='+fname, null, 'Create sketch file: '+fname);
 	};
 	
-	this.loadArduino = function(device, sketchf) {
-		preloader.get('repair.php?device='+device+'&sketch='+sketchf, function(){
-			preloader.get('runbat.php?f=compile.bat', function(){
-				emuino.make('CompileLog');
-			
-				//var elemsAtStart = $('.dnd-container *').length;
-				//msgbox('Rebuild and run', 'Please wait..');
-				preloader.get('runbat.php?f=rebuild.bat', function(){
-					preloader.get('run.php'/*'runbat.php?f=run.bat'*/, function(){ }, 'Run virtual device..');
-				}, 'Rebuild source files and make virtual device..');
-				//window.open('download.php?fname=rebuild_run.bat');
-				// var inter = setInterval(function(){
-					// if(elemsAtStart != $('.dnd-container *').length) {
-						// clearInterval(inter);
-						// $('#msgbox').dialog('close');
-					// }
-				// }, 300);
-				// todo watch the file time...
-			}, 'Repair source files..');
+	this.loadArduino = function(device, sketch) {
+		
+		emuino.preloader.call('doRunArduino', [device, sketch], function(resp){
+			if(resp.status == 'E') {
+				emuino.make('MessageBox', null, resp);
+			}
 		});
-		//alert('TODO: load Arduino (rebuild cpp source with sketch.ino) and run: '+deviceType+', '+sketchFileName);
+		
+		// todo watch the file time... ??
 	};
 	
 	this.close = function() {
-		preloader.get('runbat.php?f=stop.bat', function() {  }, 'Server shut down..');
+		
+		//emuino.preloader.get('runbat.php?f=stop.bat', function() {  
+		emuino.preloader.call('doStopServer', [], function() {  
+		
+		}, 'Server shut down..');
 		setTimeout(function(){
 			$('html').html('Connection closed, <button onclick="window.open(\"\", \"_self\").close();">click here to close</button> this browser tab<br>bye..');
 			window.open("", "_self").close();

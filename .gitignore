@@ -11,3 +11,4 @@ pipe_*
 *.log
 */gmon.out
 /nbproject/
+/_info

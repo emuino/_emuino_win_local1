@@ -2,6 +2,7 @@
 
 	<label>Arduino device type</label>
 	<select name="device">
+		<option value="__AVR_ATmega328P__">AVR ATmega328P</option>
 		<option value="__AVR_ATxmega384D3__">AVR ATxmega384D3</option>
 	</select>
 
